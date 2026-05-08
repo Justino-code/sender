@@ -88,7 +88,7 @@ if (result.success) {
 
 A documentação completa está disponível em:
 
-[https://seudousuario.github.io/sender/](https://seudousuario.github.io/sender/)
+[https://Justino-code.github.io/sender/](https://Justino-code.github.io/sender/)
 
 ---
 
