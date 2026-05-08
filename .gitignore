@@ -1,0 +1,41 @@
+# Dependências
+node_modules/
+yarn-error.log
+package-lock.json
+
+# Compilação
+dist/
+*.tsbuildinfo
+
+# Ambiente
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testes
+coverage/
+.nyc_output/
+
+# Build
+*.tgz
+
+# Temporários
+*.tmp
+.cache/

@@ -1,0 +1,66 @@
+{
+  "name": "@justino-code/sender",
+  "version": "0.1.0-alpha",
+  "description": "SDK universal para envio de SMS e OTP com suporte a gateways angolanos (Ombala, KambaSMS, etc)",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "sms",
+    "otp",
+    "angola",
+    "ombala",
+    "kambasms",
+    "gateway",
+    "messaging",
+    "africa",
+    "angolan",
+    "sms-api",
+    "transactional-sms"
+  ],
+  "author": "Justino Contingo <justinocontingo@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Justino-code/sender.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Justino-code/sender/issues"
+  },
+  "homepage": "https://github.com/Justino-code/sender#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "dev": "tsup src/index.ts --watch",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "prepublishOnly": "yarn build"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.2",
+    "@vitest/coverage-v8": "^4.1.5",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  }
+}
