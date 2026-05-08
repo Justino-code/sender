@@ -22,7 +22,7 @@ Retorna uma instância que implementa a interface `SmsProvider`.
 ### Exemplo
 
 ```typescript
-import { createSender } from "sender";
+import { createSender } from "@justino-code/sender";
 
 const sms = createSender({
   providerName: "ombala",
@@ -210,7 +210,7 @@ getProvider(name: string): ProviderConstructor | undefined
 ```
 
 ```typescript
-import { getProvider } from "sender";
+import { getProvider } from "@justino-code/sender";
 
 const ProviderClass = getProvider("ombala");
 if (ProviderClass) {

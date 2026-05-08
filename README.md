@@ -1,6 +1,6 @@
-# sender
+# @justino-code/sender
 
-[![npm version](https://badge.fury.io/js/sender.svg)](https://www.npmjs.com/package/sender)
+[![npm version](https://badge.fury.io/js/%40justino-code%2Fsender.svg)](https://www.npmjs.com/package/@justino-code/sender)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue)](https://www.typescriptlang.org/)
@@ -11,7 +11,7 @@ SDK universal para envio de SMS com suporte a gateways angolanos.
 
 ## 📦 Sobre o projeto
 
-**Sender** é uma biblioteca simples, extensível e type-safe para envio de SMS em aplicações Node.js. Foi construída com foco em **developers angolanos** que precisam integrar diferentes gateways de SMS (Ombala, KambaSMS, etc) sem reescrever lógica de integração.
+**@justino-code/sender** é uma biblioteca simples, extensível e type-safe para envio de SMS em aplicações Node.js. Foi construída com foco em **developers angolanos** que precisam integrar diferentes gateways de SMS (Ombala, KambaSMS, etc) sem reescrever lógica de integração.
 
 ### Filosofia
 
@@ -32,33 +32,32 @@ SDK universal para envio de SMS com suporte a gateways angolanos.
 ## 🚀 Instalação
 
 ```bash
-yarn add sender
+yarn add @justino-code/sender
 # ou
-npm install sender
+npm install @justino-code/sender
 ```
 
-### Requisitos
+Requisitos
 
-- Node.js 18+ (para suporte ao `fetch` nativo)
-- TypeScript 5+ (recomendado, mas opcional)
-
----
-
-## 🔧 Providers suportados
-
-| Provider | Status | Documentação |
-|----------|--------|--------------|
-| **Ombala** | ✅ Estável | [Ver docs](./docs/providers/ombala.md) |
-| **KambaSMS** | ✅ Estável | [Ver docs](./docs/providers/kambasms.md) |
-
-> Planeados: Ecsend, KwanzaSMS, Africell SMS
+· Node.js 18+ (para suporte ao fetch nativo)
+· TypeScript 5+ (recomendado, mas opcional)
 
 ---
 
-## 📝 Exemplo básico
+🔧 Providers suportados
+
+Provider Status Documentação
+Ombala ✅ Estável Ver docs
+KambaSMS ✅ Estável Ver docs
+
+Planeados: Ecsend, KwanzaSMS, Africell SMS
+
+---
+
+📝 Exemplo básico
 
 ```typescript
-import { createSender } from "sender";
+import { createSender } from "@justino-code/sender";
 
 // Configurar o provider
 const sms = createSender({
@@ -84,17 +83,17 @@ if (result.success) {
 
 ---
 
-## 📚 Documentação completa
+📚 Documentação completa
 
 A documentação completa está disponível em:
 
-[https://Justino-code.github.io/sender/](https://Justino-code.github.io/sender/)
+https://justino-code.github.io/sender/
 
 ---
 
-## 🧪 Exemplos práticos
+🧪 Exemplos práticos
 
-### Envio em lote
+Envio em lote
 
 ```typescript
 const result = await sms.sendBatch({
@@ -105,62 +104,120 @@ const result = await sms.sendBatch({
 
 console.log(`✅ Sucessos: ${result.successful.length}`);
 console.log(`❌ Falhas: ${result.failed.length}`);
+```
+
+Tratamento de erros
+
+```typescript
+import { AuthenticationError, RateLimitError, ValidationError } from "@justino-code/sender";
+
+try {
+  await sms.send({
+    from: "LEVAJA",
+    to: "923000000",
+    message: "Teste",
+  });
+} catch (error) {
+  if (error instanceof AuthenticationError) {
+    console.error("Token inválido ou expirado");
+  } else if (error instanceof RateLimitError) {
+    console.error("Limite de requisições excedido");
+  } else if (error instanceof ValidationError) {
+    console.error("Número de telefone inválido");
+  } else {
+    console.error("Erro desconhecido:", error.message);
+  }
+}
+```
+
+Validar número antes de enviar
+
+```typescript
+import { validatePhoneNumber, normalizePhoneNumber } from "@justino-code/sender";
+
+const phone = "923000000";
+
+if (validatePhoneNumber(phone)) {
+  const normalized = normalizePhoneNumber(phone); // +244923000000
+  await sms.send({
+    from: "LEVAJA",
+    to: phone,
+    message: "Olá!",
+  });
+} else {
+  console.error("Número inválido");
+}
+```
+
+Provider customizado
+
+```typescript
+import { registerProvider, createSender, type SmsProvider } from "@justino-code/sender";
+
+class MeuProvider implements SmsProvider {
+  async send(data) {
+    return { success: true, provider: "meuprovider", messageId: "123" };
+  }
+  
+  async sendBatch(data) {
+    return { success: true, provider: "meuprovider", successful: data.to, failed: [] };
+  }
+}
+
+registerProvider("meuprovider", MeuProvider);
+
+const sms = createSender({
+  providerName: "meuprovider",
+  providerConfig: { token: "xyz", baseUrl: "https://api.com", timeout: 10000 },
+});
+```
 
 ---
 
-## 🤝 Contribuição
+🤝 Contribuição
 
 Contribuições são bem-vindas!
 
-### Como contribuir
+Consulte o guia de contribuição para mais detalhes.
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -m 'Adiciona nova feature'`)
-4. Push para a branch (`git push origin feature/nova-feature`)
-5. Abra um Pull Request
+Reportar bugs
 
-### Reportar bugs
-
-Abra uma [issue](https://github.com/teu-usuario/sender/issues) com:
-- Versão do Node.js
-- Versão do sender
-- Código mínimo para reproduzir
-- Comportamento esperado vs actual
+Abra uma issue
 
 ---
 
-## 📄 Licença
+📄 Licença
 
-MIT © [Seu Nome]
-
----
-
-## 👤 Autor
-
-**Seu Nome**
-- GitHub: [@seudousuario](https://github.com/seudousuario)
-- Email: seu.email@exemplo.com
+MIT © Justino Contingo
 
 ---
 
-## 🌟 Agradecimentos
+👤 Autor
 
-- [Ombala](https://useombala.ao) — Gateway angolano de SMS
-- [KambaSMS](https://kambasms.ao) — Plataforma de comunicação angolana
+Justino Contingo
+
+· GitHub: @Justino-code
+· Email: justinocontingo@gmail.com
 
 ---
 
-## 📊 Roadmap
+🌟 Agradecimentos
 
-- [x] Provider Ombala
-- [x] Provider KambaSMS
-- [x] Envio em lote
-- [x] Registry pattern para providers customizados
-- [x] Validação de números angolanos
-- [ ] Provider Ecsend
-- [ ] Provider KwanzaSMS
-- [ ] Provider Africell SMS
-- [ ] Retry automático
-- [ ] Fallback entre providers (ex: Ombala → KambaSMS)
-- [ ] Webhooks para status de entrega
+· Ombala — Gateway angolano de SMS
+· KambaSMS — Plataforma de comunicação angolana
+
+---
+
+📊 Roadmap
+
+· Provider Ombala
+· Provider KambaSMS
+· Envio em lote
+· Registry pattern para providers customizados
+· Validação de números angolanos
+· Provider Ecsend
+· Provider KwanzaSMS
+· Provider Africell SMS
+· Retry automático
+· Fallback entre providers
+· Webhooks para status de entrega

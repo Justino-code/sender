@@ -27,7 +27,7 @@ import type {
   SendMessageResponse,
   SendBatchMessageResponse,
   ProviderConfig,
-} from "sender";
+} from "@justino-code/sender";
 
 import {
   AuthenticationError,
@@ -36,7 +36,7 @@ import {
   ValidationError,
   TimeoutError,
   ConfigurationError,
-} from "sender";
+} from "@justino-code/sender";
 
 export class MeuProvider implements SmsProvider {
   private readonly baseUrl: string;
@@ -175,8 +175,8 @@ await sms.send({
 Podes sobrescrever um provider já registado:
 
 ```typescript
-import { registerProvider } from "sender";
-import { OmbalaProvider } from "sender";
+import { registerProvider } from "@justino-code/sender";
+import { OmbalaProvider } from "@justino-code/sender";
 
 class MeuOmbalaModificado extends OmbalaProvider {
   async send(data) {
@@ -206,7 +206,7 @@ registerProvider("ombala", MeuOmbalaModificado, true);
 Para um provider muito simples:
 
 ```typescript
-import type { SmsProvider, SendMessageDto, SendMessageResponse } from "sender";
+import type { SmsProvider, SendMessageDto, SendMessageResponse } from "@justino-code/sender";
 
 export class ProviderMinimo implements SmsProvider {
   async send(data: SendMessageDto): Promise<SendMessageResponse> {

@@ -13,7 +13,7 @@ npm install sender
 ### Provider Ombala
 
 ```typescript
-import { createSender } from "sender";
+import { createSender } from "@justino-code/sender";
 
 const sms = createSender({
   providerName: "ombala",
@@ -28,7 +28,7 @@ const sms = createSender({
 ### Provider KambaSMS
 
 ```typescript
-import { createSender } from "sender";
+import { createSender } from "@justino-code/sender";
 
 const sms = createSender({
   providerName: "kambasms",
