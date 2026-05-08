@@ -790,19 +790,3 @@ async function otpFlow() {
 
 otpFlow();
 ```
-
----
-
-Resumo dos exemplos
-
-Exemplo Descrição
-Envio simples O mínimo necessário para enviar SMS
-Com variáveis de ambiente Configuração segura para produção
-Envio em lote Enviar para múltiplos números
-Tratamento de erros completo Capturar todos os tipos de erro
-Validação de números Filtrar números inválidos
-Fallback manual Tentar outro provider em caso de falha
-Retry automático Tentar novamente em caso de falha
-Provider customizado Criar seu próprio gateway
-Serviço Express API REST para enviar SMS
-Utilitário OTP Códigos de verificação completos
