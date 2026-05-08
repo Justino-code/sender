@@ -1,4 +1,4 @@
-# @justino-code/sender
+# @jscode/sender
 
 [![npm version](https://badge.fury.io/js/%40justino-code%2Fsender.svg)](https://www.npmjs.com/package/@justino-code/sender)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -11,7 +11,7 @@ SDK universal para envio de SMS com suporte a gateways angolanos.
 
 ## 📦 Sobre o projeto
 
-**@justino-code/sender** é uma biblioteca simples, extensível e type-safe para envio de SMS em aplicações Node.js. Foi construída com foco em **developers angolanos** que precisam integrar diferentes gateways de SMS (Ombala, KambaSMS, etc) sem reescrever lógica de integração.
+**@jscode/sender** é uma biblioteca simples, extensível e type-safe para envio de SMS em aplicações Node.js. Foi construída com foco em **developers angolanos** que precisam integrar diferentes gateways de SMS (Ombala, KambaSMS, etc) sem reescrever lógica de integração.
 
 ### Filosofia
 
@@ -32,9 +32,9 @@ SDK universal para envio de SMS com suporte a gateways angolanos.
 ## 🚀 Instalação
 
 ```bash
-yarn add @justino-code/sender
+yarn add @jscode/sender
 # ou
-npm install @justino-code/sender
+npm install @jscode/sender
 ```
 
 Requisitos
@@ -57,7 +57,7 @@ Planeados: Ecsend, KwanzaSMS, Africell SMS
 📝 Exemplo básico
 
 ```typescript
-import { createSender } from "@justino-code/sender";
+import { createSender } from "@jscode/sender";
 
 // Configurar o provider
 const sms = createSender({
@@ -133,7 +133,7 @@ try {
 Validar número antes de enviar
 
 ```typescript
-import { validatePhoneNumber, normalizePhoneNumber } from "@justino-code/sender";
+import { validatePhoneNumber, normalizePhoneNumber } from "@jscode/sender";
 
 const phone = "923000000";
 
@@ -152,7 +152,7 @@ if (validatePhoneNumber(phone)) {
 Provider customizado
 
 ```typescript
-import { registerProvider, createSender, type SmsProvider } from "@justino-code/sender";
+import { registerProvider, createSender, type SmsProvider } from "@jscode/sender";
 
 class MeuProvider implements SmsProvider {
   async send(data) {

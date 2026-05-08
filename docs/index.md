@@ -4,7 +4,7 @@ Bem-vindo à documentação oficial do **@jscode/sender** - o SDK universal para
 
 ## Sobre o SDK
 
-O @justino-code/sender foi construído para simplificar a integração com diferentes gateways de SMS em Angola. Com uma API limpa e consistente, podes trocar de provider sem alterar o resto da tua aplicação.
+O @jscode/sender foi construído para simplificar a integração com diferentes gateways de SMS em Angola. Com uma API limpa e consistente, podes trocar de provider sem alterar o resto da tua aplicação.
 
 ### Características principais
 
@@ -40,6 +40,7 @@ No momento, o SDK suporta **dois gateways angolanos**:
 | [Primeiros passos](./getting-started.md) | Instalação, configuração e primeiro envio |
 | [API Reference](./api.md) | Todas as funções, tipos e interfaces |
 | [Providers](./providers.md) | Detalhes de cada gateway suportado |
+| [Exemplos práticos](./examples.md) | Códigos completos prontos para usar |
 | [Provider customizado](./custom-provider.md) | Como criar e registrar o seu próprio provider |
 
 ## Instalação
@@ -50,6 +51,29 @@ yarn add @jscode/sender
 npm install @jscode/sender
 ```
 
+Exemplo rápido
+
+```typescript
+import { createSender } from "@jscode/sender";
+
+const sms = createSender({
+  providerName: "ombala",
+  providerConfig: {
+    token: process.env.OMBALA_API_KEY,
+    baseUrl: "https://api.useombala.ao/v1",
+    timeout: 10000,
+  },
+});
+
+const result = await sms.send({
+  from: "LEVAJA",
+  to: "923000000",
+  message: "Olá mundo!",
+});
+
+console.log(result.success ? "✅ Enviado" : "❌ Falha");
+```
+
 Requisitos
 
 · Node.js 18+ (para suporte ao fetch nativo)
@@ -58,4 +82,3 @@ Requisitos
 Licença
 
 MIT
-

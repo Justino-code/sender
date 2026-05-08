@@ -1,6 +1,6 @@
 # Guia de contribuição
 
-Obrigado por querer contribuir com o `@justino-code/sender`! 🎉
+Obrigado por querer contribuir com o `@jscode/sender`! 🎉
 
 ## Código de conduta
 
@@ -15,7 +15,7 @@ Antes de abrir uma issue, verifique se o bug já não foi reportado.
 Abra uma issue com:
 
 - Versão do Node.js (`node --version`)
-- Versão do pacote (`npm list @justino-code/sender`)
+- Versão do pacote (`npm list @jscode/sender`)
 - Código mínimo para reproduzir o problema
 - Comportamento esperado
 - Comportamento atual
