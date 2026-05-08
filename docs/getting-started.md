@@ -3,9 +3,9 @@
 ## Instalação
 
 ```bash
-yarn add sender
+yarn add @justino-code/sender
 # ou
-npm install sender
+npm install @justino-code/sender
 ```
 
 ## Configuração
