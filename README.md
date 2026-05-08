@@ -1,5 +1,7 @@
 # @jscode/sender
 
+> ⚠️ **Aviso**: Esta biblioteca está em desenvolvimento (alpha). A API pode sofrer alterações até a versão estável 1.0.0.
+
 [![npm version](https://badge.fury.io/js/%40justino-code%2Fsender.svg)](https://www.npmjs.com/package/@justino-code/sender)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)

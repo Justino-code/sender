@@ -1,5 +1,7 @@
 # Documentação do @jscode/sender
 
+> ⚠️ **Aviso**: Esta biblioteca está em desenvolvimento (alpha). A API pode sofrer alterações até a versão estável 1.0.0.
+
 Bem-vindo à documentação oficial do **@jscode/sender** - o SDK universal para envio de SMS com suporte a gateways angolanos.
 
 ## Sobre o SDK
