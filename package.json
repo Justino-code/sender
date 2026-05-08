@@ -1,5 +1,5 @@
 {
-  "name": "@jscode/sender",
+  "name": "@jcsolutions/sender",
   "version": "0.1.0-alpha.1",
   "description": "SDK leve e extensível para envio de SMS e OTP em Node.js com suporte a gateways angolanos.",
   "type": "module",
@@ -39,8 +39,14 @@
   "author": "Justino Contingo <justinocontingo@gmail.com>",
   "license": "MIT",
 
-  "repository": "https://github.com/Justino-code/sender",
-  "bugs": "https://github.com/Justino-code/sender/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Justino-code/sender.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Justino-code/sender/issues"
+  },
+
   "homepage": "https://github.com/Justino-code/sender#readme",
 
   "engines": {

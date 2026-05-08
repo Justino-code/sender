@@ -1,6 +1,6 @@
 # Exemplos práticos
 
-Esta página contém exemplos completos e prontos para usar com o `@jscode/sender`.
+Esta página contém exemplos completos e prontos para usar com o `@jcsolutions/sender`.
 
 ## Índice
 
@@ -22,7 +22,7 @@ Esta página contém exemplos completos e prontos para usar com o `@jscode/sende
 O exemplo mais básico de envio de SMS.
 
 ```typescript
-import { createSender } from "@jscode/sender";
+import { createSender } from "@jcsolutions/sender";
 
 // Configurar o provider
 const sms = createSender({
@@ -64,7 +64,7 @@ Recomendado para produção. Nunca coloque API keys no código.
 // OMBALA_API_KEY=sua-chave-aqui
 // OMBALA_BASE_URL=https://api.useombala.ao/v1
 
-import { createSender } from "@jscode/sender";
+import { createSender } from "@jcsolutions/sender";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -96,7 +96,7 @@ Envio em lote
 Envie a mesma mensagem para múltiplos destinatários.
 
 ```typescript
-import { createSender } from "@jscode/sender";
+import { createSender } from "@jcsolutions/sender";
 
 const sms = createSender({
   providerName: "kambasms",
@@ -153,7 +153,7 @@ Tratamento de erros completo
 Capturando todos os tipos de erro possíveis.
 
 ```typescript
-import { createSender } from "@jscode/sender";
+import { createSender } from "@jcsolutions/sender";
 import {
   AuthenticationError,
   RateLimitError,
@@ -161,7 +161,7 @@ import {
   ProviderError,
   TimeoutError,
   ConfigurationError,
-} from "@jscode/sender";
+} from "@jcsolutions/sender";
 
 const sms = createSender({
   providerName: "ombala",
@@ -246,7 +246,7 @@ import {
   validatePhoneNumbers,
   normalizePhoneNumber,
   createSender,
-} from "@jscode/sender";
+} from "@jcsolutions/sender";
 
 const sms = createSender({
   providerName: "ombala",
@@ -312,7 +312,7 @@ Provider com fallback manual
 Se um provider falhar, tenta outro automaticamente.
 
 ```typescript
-import { createSender } from "@jscode/sender";
+import { createSender } from "@jcsolutions/sender";
 
 async function sendWithFallback(phone: string, message: string) {
   const providers = [
@@ -373,7 +373,7 @@ Envio com retry automático
 Tenta enviar novamente em caso de falha.
 
 ```typescript
-import { createSender } from "@jscode/sender";
+import { createSender } from "@jcsolutions/sender";
 
 async function sendWithRetry(
   phone: string,
@@ -445,7 +445,7 @@ import {
   ValidationError,
   TimeoutError,
   ConfigurationError,
-} from "@jscode/sender";
+} from "@jcsolutions/sender";
 
 // 1. Criar a classe do provider
 class MeuGatewayProvider implements SmsProvider {
@@ -580,7 +580,7 @@ API REST para enviar SMS.
 
 ```typescript
 import express, { Request, Response } from "express";
-import { createSender } from "@jscode/sender";
+import { createSender } from "@jcsolutions/sender";
 
 const app = express();
 app.use(express.json());
@@ -674,7 +674,7 @@ Função utilitária para OTP
 Envio de códigos de verificação.
 
 ```typescript
-import { createSender, validatePhoneNumber } from "@jscode/sender";
+import { createSender, validatePhoneNumber } from "@jcsolutions/sender";
 
 const sms = createSender({
   providerName: "ombala",

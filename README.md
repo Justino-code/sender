@@ -1,4 +1,4 @@
-# @jscode/sender
+# @jcsolutions/sender
 
 > ⚠️ **Aviso**: Esta biblioteca está em desenvolvimento (alpha). A API pode sofrer alterações até a versão estável 1.0.0.
 
@@ -34,9 +34,9 @@ SDK universal para envio de SMS com suporte a gateways angolanos.
 ## 🚀 Instalação
 
 ```bash
-yarn add @jscode/sender
+yarn add @jcsolutions/sender
 # ou
-npm install @jscode/sender
+npm install @jcsolutions/sender
 ```
 
 Requisitos
@@ -59,7 +59,7 @@ Planeados: Ecsend, KwanzaSMS, Africell SMS
 📝 Exemplo básico
 
 ```typescript
-import { createSender } from "@jscode/sender";
+import { createSender } from "@jcsolutions/sender";
 
 // Configurar o provider
 const sms = createSender({
@@ -135,7 +135,7 @@ try {
 Validar número antes de enviar
 
 ```typescript
-import { validatePhoneNumber, normalizePhoneNumber } from "@jscode/sender";
+import { validatePhoneNumber, normalizePhoneNumber } from "@jcsolutions/sender";
 
 const phone = "923000000";
 
@@ -154,7 +154,7 @@ if (validatePhoneNumber(phone)) {
 Provider customizado
 
 ```typescript
-import { registerProvider, createSender, type SmsProvider } from "@jscode/sender";
+import { registerProvider, createSender, type SmsProvider } from "@jcsolutions/sender";
 
 class MeuProvider implements SmsProvider {
   async send(data) {

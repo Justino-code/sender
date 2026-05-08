@@ -2,11 +2,11 @@
 
 > ⚠️ **Aviso**: Esta biblioteca está em desenvolvimento (alpha). A API pode sofrer alterações até a versão estável 1.0.0.
 
-Bem-vindo à documentação oficial do **@jscode/sender** - o SDK universal para envio de SMS com suporte a gateways angolanos.
+Bem-vindo à documentação oficial do **@jcsolutions/sender** - o SDK universal para envio de SMS com suporte a gateways angolanos.
 
 ## Sobre o SDK
 
-O @jscode/sender foi construído para simplificar a integração com diferentes gateways de SMS em Angola. Com uma API limpa e consistente, podes trocar de provider sem alterar o resto da tua aplicação.
+O @jcsolutions/sender foi construído para simplificar a integração com diferentes gateways de SMS em Angola. Com uma API limpa e consistente, podes trocar de provider sem alterar o resto da tua aplicação.
 
 ### Características principais
 
@@ -48,15 +48,15 @@ No momento, o SDK suporta **dois gateways angolanos**:
 ## Instalação
 
 ```bash
-yarn add @jscode/sender
+yarn add @jcsolutions/sender
 # ou
-npm install @jscode/sender
+npm install @jcsolutions/sender
 ```
 
 Exemplo rápido
 
 ```typescript
-import { createSender } from "@jscode/sender";
+import { createSender } from "@jcsolutions/sender";
 
 const sms = createSender({
   providerName: "ombala",

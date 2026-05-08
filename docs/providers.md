@@ -7,7 +7,7 @@ O Sender SDK suporta múltiplos gateways de SMS angolanos. Cada provider tem sua
 ### Configuração
 
 ```typescript
-import { createSender } from "@jscode/sender";
+import { createSender } from "@jcsolutions/sender";
 
 const sms = createSender({
   providerName: "ombala",
@@ -33,7 +33,7 @@ const sms = createSender({
 ### Configuração
 
 ```typescript
-import { createSender } from "@jscode/sender";
+import { createSender } from "@jcsolutions/sender";
 
 const sms = createSender({
   providerName: "kambasms",
