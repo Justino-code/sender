@@ -1,6 +1,6 @@
-# Documentação do @justino-code/sender
+# Documentação do @jscode/sender
 
-Bem-vindo à documentação oficial do **@justino-code/sender** - o SDK universal para envio de SMS com suporte a gateways angolanos.
+Bem-vindo à documentação oficial do **@jscode/sender** - o SDK universal para envio de SMS com suporte a gateways angolanos.
 
 ## Sobre o SDK
 
@@ -45,9 +45,9 @@ No momento, o SDK suporta **dois gateways angolanos**:
 ## Instalação
 
 ```bash
-yarn add @justino-code/sender
+yarn add @jscode/sender
 # ou
-npm install @justino-code/sender
+npm install @jscode/sender
 ```
 
 Requisitos

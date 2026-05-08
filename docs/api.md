@@ -22,7 +22,7 @@ Retorna uma instância que implementa a interface `SmsProvider`.
 ### Exemplo
 
 ```typescript
-import { createSender } from "@justino-code/sender";
+import { createSender } from "@jscode/sender";
 
 const sms = createSender({
   providerName: "ombala",
@@ -145,7 +145,7 @@ registerProvider(name: string, providerClass: ProviderConstructor, override?: bo
 | `override` | Se deve sobrescrever caso já exista (padrão: false) |
 
 ```typescript
-import { registerProvider } from "sender";
+import { registerProvider } from "@jscode/sender";
 
 class MeuProvider implements SmsProvider {
   // ...
@@ -163,7 +163,7 @@ registerProviders(providers: Record<string, ProviderConstructor>, override?: boo
 ```
 
 ```typescript
-import { registerProviders } from "sender";
+import { registerProviders } from "@jscode/sender";
 
 registerProviders({
   ombala: OmbalaProvider,
@@ -180,7 +180,7 @@ listProviders(): string[]
 ```
 
 ```typescript
-import { listProviders } from "sender";
+import { listProviders } from "@jscode/sender";
 
 console.log(listProviders()); // ['ombala', 'kambasms']
 ```
@@ -194,7 +194,7 @@ hasProvider(name: string): boolean
 ```
 
 ```typescript
-import { hasProvider } from "sender";
+import { hasProvider } from "@jscode/sender";
 
 if (hasProvider("ombala")) {
   // Provider disponível
@@ -210,7 +210,7 @@ getProvider(name: string): ProviderConstructor | undefined
 ```
 
 ```typescript
-import { getProvider } from "@justino-code/sender";
+import { getProvider } from "@jscode/sender";
 
 const ProviderClass = getProvider("ombala");
 if (ProviderClass) {
@@ -231,7 +231,7 @@ validatePhoneNumber(phone: string): boolean
 ```
 
 ```typescript
-import { validatePhoneNumber } from "sender";
+import { validatePhoneNumber } from "@jscode/sender";
 
 validatePhoneNumber("923000000");  // true
 validatePhoneNumber("813000000");  // false
@@ -247,7 +247,7 @@ validatePhoneNumbers(phones: string[]): { valid: string[]; invalid: string[] }
 ```
 
 ```typescript
-import { validatePhoneNumbers } from "sender";
+import { validatePhoneNumbers } from "@jscode/sender";
 
 const { valid, invalid } = validatePhoneNumbers([
   "923000001",
@@ -268,7 +268,7 @@ normalizePhoneNumber(phone: string): string
 ```
 
 ```typescript
-import { normalizePhoneNumber } from "sender";
+import { normalizePhoneNumber } from "@jscode/sender";
 
 normalizePhoneNumber("923000000");     // "+244923000000"
 normalizePhoneNumber("0923000000");    // "+244923000000"
@@ -284,7 +284,7 @@ normalizePhoneNumbers(phones: string[]): string[]
 ```
 
 ```typescript
-import { normalizePhoneNumbers } from "sender";
+import { normalizePhoneNumbers } from "@jscode/sender";
 
 const normalized = normalizePhoneNumbers([
   "923000001",

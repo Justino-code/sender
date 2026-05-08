@@ -3,9 +3,9 @@
 ## Instalação
 
 ```bash
-yarn add @justino-code/sender
+yarn add @jscode/sender
 # ou
-npm install @justino-code/sender
+npm install @jscode/sender
 ```
 
 ## Configuração
@@ -13,7 +13,7 @@ npm install @justino-code/sender
 ### Provider Ombala
 
 ```typescript
-import { createSender } from "@justino-code/sender";
+import { createSender } from "@jscode/sender";
 
 const sms = createSender({
   providerName: "ombala",
@@ -28,7 +28,7 @@ const sms = createSender({
 ### Provider KambaSMS
 
 ```typescript
-import { createSender } from "@justino-code/sender";
+import { createSender } from "@jscode/sender";
 
 const sms = createSender({
   providerName: "kambasms",
@@ -99,7 +99,7 @@ import {
   ValidationError,
   ProviderError,
   TimeoutError 
-} from "sender";
+} from "@jscode/sender";
 
 try {
   await sms.send({
@@ -127,7 +127,7 @@ try {
 ## Validar números antes de enviar
 
 ```typescript
-import { validatePhoneNumber, normalizePhoneNumber } from "sender";
+import { validatePhoneNumber, normalizePhoneNumber } from "@jscode/sender";
 
 const phone = "923000000";
 
