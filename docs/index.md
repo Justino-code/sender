@@ -27,7 +27,7 @@ No momento, o SDK suporta **dois gateways angolanos**:
 | **Ombala** | ✅ Estável |
 | **KambaSMS** | ✅ Estável |
 
-> Mais gateways serão adicionados em breve (Ecsend, KwanzaSMS, Africell SMS).
+> Mais gateways serão adicionados em breve (Sms.to, TelcoSMS, MIMO, WeSender).
 
 ### Casos de uso
 
