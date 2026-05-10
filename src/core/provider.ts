@@ -31,7 +31,7 @@ export abstract class Provider implements IProvider {
     protected readonly from?: string;
     protected readonly customData?: Record<string, unknown>;
 
-    protected constructor(config: ProviderConfig) {
+    public constructor(config: ProviderConfig) {
         // Validações obrigatórias
         if (!config.token) {
             throw new ConfigurationError("Token é obrigatório. Forneça sua API key ou token de acesso.");

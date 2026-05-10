@@ -1,6 +1,6 @@
-import type { SmsProvider, ProviderConfig } from "../shared/index.js";
+import type { IProvider, ProviderConfig } from "../shared/index.js";
 
-type ProviderConstructor = new (config: ProviderConfig) => SmsProvider;
+type ProviderConstructor = new (config: ProviderConfig) => IProvider;
 
 class ProviderRegistry {
   private providers: Map<string, ProviderConstructor> = new Map();
