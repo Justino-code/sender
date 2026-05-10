@@ -3,10 +3,8 @@
   "version": "0.1.0-alpha.2",
   "description": "SDK leve e extensível para envio de SMS e OTP em Node.js com suporte a gateways angolanos.",
   "type": "module",
-
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
-
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -14,13 +12,11 @@
       "require": "./dist/index.cjs"
     }
   },
-
   "files": [
     "dist",
     "README.md",
     "LICENSE"
   ],
-
   "keywords": [
     "sms",
     "otp",
@@ -35,10 +31,8 @@
     "api",
     "angola"
   ],
-
   "author": "Justino Contingo <justinocontingo@gmail.com>",
   "license": "MIT",
-
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Justino-code/sender.git"
@@ -46,24 +40,21 @@
   "bugs": {
     "url": "https://github.com/Justino-code/sender/issues"
   },
-
   "homepage": "https://github.com/Justino-code/sender#readme",
-
   "engines": {
     "node": ">=18"
   },
-
   "packageManager": "yarn@1.22.22",
-
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts --clean",
     "dev": "tsup src/index.ts --watch",
     "test": "vitest",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
     "test:coverage": "vitest --coverage",
     "prepublishOnly": "yarn build",
     "postinstall": "node scripts/postinstall.js"
   },
-
   "devDependencies": {
     "@types/node": "^25.6.2",
     "@vitest/coverage-v8": "^4.1.5",
