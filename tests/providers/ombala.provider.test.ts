@@ -1,11 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { OmbalaProvider } from '../../src/providers/ombala.provider.js';
+import { OmbalaProvider } from '../../src/providers/ombala/index.js';
 import type { ProviderConfig, SendMessageDto, SendBatchMessageDto } from '../../src/shared/index.js';
 import { 
   AuthenticationError, 
   RateLimitError, 
   ProviderError,
   ValidationError,
+  ConfigurationError,
 } from '../../src/shared/index.js';
 
 describe('OmbalaProvider', () => {
@@ -17,13 +18,23 @@ describe('OmbalaProvider', () => {
       token: 'test-token-123',
       baseUrl: 'https://api.useombala.ao/v1',
       timeout: 5000,
+      from: 'LEVAJA',  // ← from obrigatório na configuração
     };
     provider = new OmbalaProvider(mockConfig);
   });
 
+  describe('constructor', () => {
+    it('deve lançar ConfigurationError quando from não é fornecido', () => {
+      const invalidConfig = { ...mockConfig, from: undefined };
+      expect(() => new OmbalaProvider(invalidConfig)).toThrow(ConfigurationError);
+      expect(() => new OmbalaProvider(invalidConfig)).toThrow(
+        'OmbalaProvider: from é obrigatório'
+      );
+    });
+  });
+
   describe('send', () => {
     const sendData: SendMessageDto = {
-      from: 'LEVAJA',
       to: '923000000',
       message: 'Test message',
     };
@@ -41,6 +52,11 @@ describe('OmbalaProvider', () => {
       expect(result.provider).toBe('ombala');
       expect(result.messageId).toBe('msg_123');
       expect(global.fetch).toHaveBeenCalledTimes(1);
+      
+      // Verificar se o body contém o from da configuração
+      const fetchCall = vi.mocked(global.fetch).mock.calls[0];
+      const body = JSON.parse(fetchCall[1]?.body as string);
+      expect(body.from).toBe('LEVAJA');
     });
 
     it('deve lançar AuthenticationError quando token é inválido', async () => {
@@ -77,10 +93,8 @@ describe('OmbalaProvider', () => {
     });
 
     it('deve lançar ValidationError para número inválido', async () => {
-      // Usando um número INVÁLIDO (começa com 8 em vez de 9)
       const invalidData = { ...sendData, to: '813000000' };
       
-      // O fetch NÃO deve ser chamado porque a validação falha primeiro
       global.fetch = vi.fn();
       
       await expect(provider.send(invalidData)).rejects.toThrow(ValidationError);
@@ -89,11 +103,27 @@ describe('OmbalaProvider', () => {
       );
       expect(global.fetch).not.toHaveBeenCalled();
     });
+
+    it('deve incluir schedule no body quando fornecido', async () => {
+      const mockResponse = {
+        ok: true,
+        json: async () => ({ id: 'msg_123' }),
+      };
+      global.fetch = vi.fn().mockResolvedValue(mockResponse);
+
+      await provider.send({
+        ...sendData,
+        schedule: '20251210150000',
+      });
+
+      const fetchCall = vi.mocked(global.fetch).mock.calls[0];
+      const body = JSON.parse(fetchCall[1]?.body as string);
+      expect(body.schedule).toBe('20251210150000');
+    });
   });
 
   describe('sendBatch', () => {
     const batchData: SendBatchMessageDto = {
-      from: 'LEVAJA',
       to: ['923000001', '923000002', '813000000', 'invalid'],
       message: 'Test batch',
     };
@@ -108,18 +138,17 @@ describe('OmbalaProvider', () => {
       const result = await provider.sendBatch(batchData);
 
       expect(result.success).toBe(true);
+      expect(result.provider).toBe('ombala');
       expect(result.successful).toContain('923000001');
       expect(result.successful).toContain('923000002');
       expect(result.failed).toContain('813000000');
       expect(result.failed).toContain('invalid');
       expect(result.details).toHaveLength(4);
-      // Deve ter chamado fetch apenas para os 2 números válidos
       expect(global.fetch).toHaveBeenCalledTimes(2);
     });
 
     it('deve lançar ValidationError quando não há números válidos', async () => {
       const invalidBatch = {
-        from: 'LEVAJA',
         to: ['invalid1', 'invalid2'],
         message: 'Test batch',
       };

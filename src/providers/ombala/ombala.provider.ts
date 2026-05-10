@@ -1,12 +1,24 @@
 import { Provider } from "../../core/index.js";
 import {
   ConfigurationError,
+  ProviderConfig,
   SendMessageDto,
   SendMessageResponse,
   ValidationError,
 } from "../../shared/index.js";
 
 export class OmbalaProvider extends Provider {
+  protected readonly providerName = "ombala";
+
+  constructor(config: ProviderConfig) {
+    super(config);
+
+    // Validação do from - OBRIGATÓRIO
+    if (!config.from) {
+      throw new ConfigurationError("OmbalaProvider: from é obrigatório");
+    }
+  }
+
   protected buildHeaders(): HeadersInit {
     return {
       "Content-Type": "application/json",

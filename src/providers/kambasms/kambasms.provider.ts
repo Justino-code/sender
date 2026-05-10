@@ -7,6 +7,8 @@ import {
 } from "../../shared/index.js";
 
 export class KambaSmsProvider extends Provider {
+  protected readonly providerName = "kambasms";
+  
   protected buildHeaders(): HeadersInit {
     return {
       "Content-Type": "application/json",

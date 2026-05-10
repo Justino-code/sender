@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createSender } from '../../src/index.js';
-import { OmbalaProvider } from '../../src/providers/ombala.provider.js';
+import { OmbalaProvider } from '../../src/providers/index.js';
 
 describe('createSender', () => {
   it('deve criar provider Ombala', () => {
@@ -10,6 +10,7 @@ describe('createSender', () => {
         token: 'test-token-123',
         baseUrl: 'https://api.test.com',
         timeout: 10000,
+        from: 'LEVAJA',
       },
     });
 

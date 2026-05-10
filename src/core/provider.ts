@@ -27,11 +27,11 @@ export abstract class Provider implements IProvider {
     protected readonly baseUrl: string;
     protected readonly timeout: number;
     protected readonly token: string;
-    protected readonly providerName: string;
+    protected abstract readonly providerName: string;
     protected readonly from?: string;
     protected readonly customData?: Record<string, unknown>;
 
-    constructor(config: ProviderConfig, providerName: string) {
+    protected constructor(config: ProviderConfig) {
         // Validações obrigatórias
         if (!config.token) {
             throw new ConfigurationError("Token é obrigatório. Forneça sua API key ou token de acesso.");
@@ -45,7 +45,6 @@ export abstract class Provider implements IProvider {
         this.baseUrl = config.baseUrl;
         this.timeout = config.timeout ?? 10000;
         this.customData = config.data;
-        this.providerName = providerName;
         this.from = config.from;
     }
 
