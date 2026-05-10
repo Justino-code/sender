@@ -2,26 +2,159 @@
 
 ## Quando criar um provider customizado
 
-Cria um provider customizado quando precisares usar um gateway que não está disponível nativamente no Sender SDK, ou quando precisares modificar o comportamento de um provider existente.
+Cria um provider customizado quando precisares usar um gateway que não está disponível nativamente no @jcsolutions/sender, ou quando precisares modificar o comportamento de um provider existente.
 
-## Interface SmsProvider
+## Classe base Provider
 
-Todo provider deve implementar a interface `SmsProvider`:
+Em vez de implementar a interface `IProvider` do zero, recomenda-se estender a classe abstrata `Provider`. Ela já fornece:
 
-```typescript
-interface SmsProvider {
-  send(data: SendMessageDto): Promise<SendMessageResponse>;
-  sendBatch(data: SendBatchMessageDto): Promise<SendBatchMessageResponse>;
-}
-```
+- Validação de configuração (`token`, `baseUrl`)
+- Gerenciamento de timeout
+- Métodos auxiliares (`validatePhone`, `normalizePhone`)
+- Método `request()` com abort controller
+- Tratamento de erros base (`handleErrorResponse`)
+- Extração de `messageId` (`extractMessageId`)
+- Implementação base de `sendBatch`
 
 ## Passo a passo
 
-### 1. Criar a classe do provider
+### 1. Estender a classe Provider
+
+```typescript
+import { 
+  Provider,
+  type SendMessageDto,
+  type SendMessageResponse,
+  type ProviderConfig,
+  ConfigurationError,
+  ValidationError,
+} from "@jcsolutions/sender";
+
+export class MeuProvider extends Provider {
+  // Obrigatório: definir o nome do provider
+  protected readonly providerName = "meuprovider";
+  
+  // Propriedades específicas do provider
+  private readonly from?: string;
+
+  constructor(config: ProviderConfig) {
+    super(config);  // valida token, baseUrl, configura timeout
+    
+    // Configurações específicas
+    this.from = config.from;
+    
+    // Validações adicionais se necessário
+    if (!this.from) {
+      throw new ConfigurationError("MeuProvider: from é obrigatório");
+    }
+  }
+
+  // Opcional: sobrescrever headers (se autenticação for diferente)
+  protected buildHeaders(): HeadersInit {
+    return {
+      "Content-Type": "application/json",
+      "X-API-Key": this.token,  // em vez de Bearer
+    };
+  }
+
+  // Obrigatório: implementar o método send
+  async send(data: SendMessageDto): Promise<SendMessageResponse> {
+    // Validar número (opcional, mas recomendado)
+    if (!this.validatePhone(data.to)) {
+      throw new ValidationError("Número de telefone inválido");
+    }
+
+    // Construir corpo da requisição conforme API do provider
+    const body = {
+      to: this.normalizePhone(data.to),
+      from: this.from,
+      text: data.message,  // campo pode ser 'message', 'text', etc
+    };
+
+    // Fazer requisição (usa timeout e headers já configurados)
+    const response = await this.request("/send", body);
+    const result = await response.json();
+
+    // Tratar erros (usa mapeamento padrão: 401, 429, 400, etc)
+    if (!response.ok) {
+      this.handleErrorResponse(response.status, result?.message);
+    }
+
+    // Retornar resposta padronizada
+    return {
+      success: true,
+      provider: this.providerName,
+      messageId: this.extractMessageId(result),  // tenta id, messageId, smsId
+      raw: result,
+    };
+  }
+
+  // Opcional: sobrescrever sendBatch se provider tiver batch nativo
+  async sendBatch(data: SendBatchMessageDto): Promise<SendBatchMessageResponse> {
+    // Se o provider suporta batch nativo, implemente aqui
+    // Caso contrário, a implementação base (chamadas individuais) será usada
+    return super.sendBatch(data);
+  }
+}
+```
+
+### 2. Registrar o provider
+
+```typescript
+import { registerProvider } from "@jcsolutions/sender";
+import { MeuProvider } from "./meu.provider.js";
+
+registerProvider("meuprovider", MeuProvider);
+```
+
+### 3. Usar o provider
+
+```typescript
+import { createSender } from "@jcsolutions/sender";
+
+const sms = await createSender("meuprovider", {
+  token: "minha-chave-api",
+  baseUrl: "https://api.meuprovider.com/v1",
+  from: "MEUAPP",           // conforme validação no construtor
+  timeout: 10000,
+});
+
+await sms.send({
+  to: "923000000",
+  message: "Olá via provider customizado!",
+});
+```
+
+---
+
+## Exemplo mínimo (estendendo Provider)
+
+```typescript
+import { Provider, type SendMessageDto, type SendMessageResponse } from "@jcsolutions/sender";
+
+export class ProviderMinimo extends Provider {
+  protected readonly providerName = "minimo";
+
+  async send(data: SendMessageDto): Promise<SendMessageResponse> {
+    // Implementação mínima
+    return {
+      success: true,
+      provider: this.providerName,
+      messageId: "123",
+    };
+  }
+}
+```
+
+---
+
+## Exemplo completo (implementando IProvider diretamente)
+
+Se preferir não usar a classe base, pode implementar `IProvider` diretamente:
 
 ```typescript
 import type {
-  SmsProvider,
+  IProvider,
   SendMessageDto,
   SendBatchMessageDto,
   SendMessageResponse,
@@ -38,19 +171,17 @@ import {
   ConfigurationError,
 } from "@jcsolutions/sender";
 
-export class MeuProvider implements SmsProvider {
+export class MeuProviderDireto implements IProvider {
   private readonly baseUrl: string;
   private readonly timeout: number;
   private readonly token: string;
 
-  constructor(private readonly config: ProviderConfig) {
-    // Validar configurações obrigatórias
+  constructor(config: ProviderConfig) {
     if (!config.token) {
-      throw new ConfigurationError("MeuProvider: token é obrigatório");
+      throw new ConfigurationError("Token é obrigatório");
     }
-
     if (!config.baseUrl) {
-      throw new ConfigurationError("MeuProvider: baseUrl é obrigatória");
+      throw new ConfigurationError("BaseUrl é obrigatória");
     }
 
     this.token = config.token;
@@ -75,7 +206,6 @@ export class MeuProvider implements SmsProvider {
         headers: this.buildHeaders(),
         body: JSON.stringify({
           to: data.to,
-          from: data.from,
           message: data.message,
         }),
         signal: controller.signal,
@@ -106,17 +236,11 @@ export class MeuProvider implements SmsProvider {
   }
 
   async sendBatch(data: SendBatchMessageDto): Promise<SendBatchMessageResponse> {
-    // Implementação para envio em lote
-    // Pode ser chamadas individuais ou nativo do provider
-    
     const results = await Promise.allSettled(
-      data.to.map(phone =>
-        this.send({
-          from: data.from,
-          to: phone,
-          message: data.message,
-        })
-      )
+      data.to.map(phone => this.send({
+        to: phone,
+        message: data.message,
+      }))
     );
 
     const successful: string[] = [];
@@ -140,35 +264,7 @@ export class MeuProvider implements SmsProvider {
 }
 ```
 
-### 2. Registrar o provider
-
-```typescript
-import { registerProvider } from "@jcsolutions/sender";
-import { MeuProvider } from "./meu.provider.js";
-
-registerProvider("meuprovider", MeuProvider);
-```
-
-### 3. Usar o provider
-
-```typescript
-import { createSender } from "@jcsolutions/sender";
-
-const sms = createSender({
-  providerName: "meuprovider",
-  providerConfig: {
-    token: "minha-chave-api",
-    baseUrl: "https://api.meuprovider.com/v1",
-    timeout: 10000,
-  },
-});
-
-await sms.send({
-  from: "MEUAPP",
-  to: "923000000",
-  message: "Olá via provider customizado!",
-});
-```
+---
 
 ## Sobrescrever provider existente
 
@@ -180,9 +276,9 @@ import { OmbalaProvider } from "@jcsolutions/sender";
 
 class MeuOmbalaModificado extends OmbalaProvider {
   async send(data) {
-    console.log("Antes do envio");
+    console.log("📤 Enviando mensagem...");
     const result = await super.send(data);
-    console.log("Depois do envio");
+    console.log(`✅ Enviado! ID: ${result.messageId}`);
     return result;
   }
 }
@@ -191,44 +287,57 @@ class MeuOmbalaModificado extends OmbalaProvider {
 registerProvider("ombala", MeuOmbalaModificado, true);
 ```
 
+---
+
+## Métodos da classe Provider que podem ser sobrescritos
+
+| Método | Descrição | Quando sobrescrever |
+|--------|-----------|---------------------|
+| `buildHeaders()` | Constrói headers da requisição | Autenticação diferente (ex: `X-API-Key`) |
+| `normalizePhone()` | Normaliza número de telefone | Formato específico do provider |
+| `validatePhone()` | Valida número angolano | Regras de validação diferentes |
+| `request()` | Faz requisição HTTP | Comportamento customizado |
+| `handleErrorResponse()` | Trata erros da API | Códigos de erro diferentes |
+| `extractMessageId()` | Extrai ID da resposta | Campo do ID tem nome diferente |
+| `sendBatch()` | Envio em lote | Provider tem batch nativo |
+
+---
+
 ## Dicas importantes
 
 | Dica | Descrição |
 |------|-----------|
-| **Validação** | Valide todas as configurações no construtor |
-| **Erros** | Use os erros padrão da biblioteca (`AuthenticationError`, `RateLimitError`, etc) |
-| **Timeout** | Implemente timeout em todas as requisições |
-| **Batch** | Se o provider não suportar lote nativo, implemente com `Promise.allSettled` |
+| **Provider name** | Obrigatório declarar `protected readonly providerName` |
+| **Validação** | Valide configurações específicas no construtor |
+| **Erros** | Use `ConfigurationError`, `ValidationError`, `AuthenticationError`, etc |
+| **Timeout** | O método `request()` já implementa timeout |
+| **Batch** | A classe base já fornece implementação (chamadas individuais) |
 | **Tipos** | Use os tipos exportados pela biblioteca |
+| **from** | Cada provider decide se precisa (via `config.from`) |
 
-## Exemplo mínimo
+---
 
-Para um provider muito simples:
+## Fluxo de um provider customizado
 
-```typescript
-import type { SmsProvider, SendMessageDto, SendMessageResponse } from "@jcsolutions/sender";
-
-export class ProviderMinimo implements SmsProvider {
-  async send(data: SendMessageDto): Promise<SendMessageResponse> {
-    return {
-      success: true,
-      provider: "minimo",
-      messageId: "123",
-    };
-  }
-
-  async sendBatch(data: SendBatchMessageDto): Promise<SendBatchMessageResponse> {
-    return {
-      success: true,
-      provider: "minimo",
-      successful: data.to,
-      failed: [],
-    };
-  }
-}
 ```
+1. Usuário chama createSender("meuprovider", config)
+2. Registry encontra a classe MeuProvider
+3. Instância é criada com new MeuProvider(config)
+   ├── super(config) é chamado
+   ├── Provider valida token, baseUrl
+   └── Construtor do MeuProvider faz validações adicionais
+4. Usuário chama send()
+   ├── MeuProvider.send() implementa lógica
+   ├── Pode usar this.validatePhone(), this.normalizePhone()
+   ├── Pode usar this.request() para fazer chamada HTTP
+   └── Retorna SendMessageResponse
+5. Se necessário, this.sendBatch() usa implementação base
+```
+
+---
 
 ## Referência
 
 - [API Reference](./api.md) - Tipos e interfaces disponíveis
 - [Providers](./providers.md) - Exemplos de providers existentes
+- [Classe Provider](./api.md#provider-classe-base) - Documentação da classe base

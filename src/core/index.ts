@@ -1,5 +1,5 @@
 export { Provider } from "./provider.js";
-export { 
+export {
   registry,
   registerProvider,
   registerProviders,
@@ -7,4 +7,12 @@ export {
   hasProvider,
   listProviders,
 } from "./registry.js";
+
+export {
+  defineConfig,
+  loadConfig,
+  getProviderConfig,
+  getDefaultProvider
+} from "./config.js";
+
 export { createSender } from "./sender.js";

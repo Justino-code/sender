@@ -3,14 +3,25 @@ import "./providers/index.js";
 
 // Core - Factory
 export { 
+  // Provider
   Provider,
+
+  // Sender
   createSender,
+
+  // Registry
   registry,
   registerProvider,
   registerProviders,
   getProvider,
   hasProvider,
   listProviders,
+
+  // Config
+  defineConfig, 
+  loadConfig, 
+  getProviderConfig, 
+  getDefaultProvider,
 } from "./core/index.js";
 
 export {

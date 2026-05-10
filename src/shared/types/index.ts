@@ -47,3 +47,9 @@ export type ProviderConfig = {
   from?: string;
   data?: Record<string, unknown>;
 }
+
+export type SenderConfigFile = {
+  defaultProvider?: string;
+  fallbackProviders?: string[];
+  providers: Record<string, Partial<ProviderConfig>>;
+}

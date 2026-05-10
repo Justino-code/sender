@@ -21,6 +21,7 @@ SDK universal para envio de SMS com suporte a gateways angolanos.
 - **Desacoplamento** — Troque de provider sem alterar o resto da aplicação
 - **Extensível** — Adicione qualquer gateway através do registry pattern
 - **TypeScript first** — Tipos completos, autocomplete e segurança
+- **Fallback automático** — Resiliência com múltiplos providers
 
 ### Casos de uso
 
@@ -39,41 +40,38 @@ yarn add @jcsolutions/sender
 npm install @jcsolutions/sender
 ```
 
-Requisitos
+### Requisitos
 
-· Node.js 18+ (para suporte ao fetch nativo)
-· TypeScript 5+ (recomendado, mas opcional)
-
----
-
-🔧 Providers suportados
-
-Provider Status Documentação
-Ombala ✅ Estável Ver docs
-KambaSMS ✅ Estável Ver docs
-
-Planeados: Sms.to, TelcoSMS, MIMO, WeSender
+- Node.js 18+ (para suporte ao fetch nativo)
+- TypeScript 5+ (recomendado, mas opcional)
 
 ---
 
-📝 Exemplo básico
+## 🔧 Providers suportados
+
+| Provider | Status | Documentação |
+|----------|--------|--------------|
+| **Ombala** | ✅ Estável | [Ver docs](./docs/providers.md#ombala) |
+| **KambaSMS** | ✅ Estável | [Ver docs](./docs/providers.md#kambasms) |
+
+> Planeados: Sms.to, TelcoSMS, MIMO, WeSender
+
+---
+
+## 📝 Exemplo básico
 
 ```typescript
 import { createSender } from "@jcsolutions/sender";
 
 // Configurar o provider
-const sms = createSender({
-  providerName: "ombala",
-  providerConfig: {
-    token: process.env.OMBALA_API_KEY,
-    baseUrl: "https://api.useombala.ao/v1",
-    timeout: 10000,
-  },
+const sms = await createSender("ombala", {
+  token: process.env.OMBALA_TOKEN,
+  baseUrl: "https://api.useombala.ao/v1",
+  from: "LEVAJA",           // obrigatório para Ombala
 });
 
 // Enviar SMS
 const result = await sms.send({
-  from: "LEVAJA",
   to: "923000000",
   message: "Seu código de verificação é 482913",
 });
@@ -85,21 +83,54 @@ if (result.success) {
 
 ---
 
-📚 Documentação completa
+## 📚 Documentação completa
 
 A documentação completa está disponível em:
 
-https://justino-code.github.io/sender/
+[https://justino-code.github.io/sender/](https://justino-code.github.io/sender/)
 
 ---
 
-🧪 Exemplos práticos
+## 🧪 Exemplos práticos
 
-Envio em lote
+### Configuração centralizada (recomendado)
+
+```typescript
+// sender.config.ts
+import { defineConfig } from "@jcsolutions/sender";
+
+export default defineConfig({
+  defaultProvider: "ombala",
+  fallbackProviders: ["kambasms"],
+  
+  providers: {
+    ombala: {
+      token: process.env.OMBALA_TOKEN,
+      baseUrl: "https://api.useombala.ao/v1",
+      from: "LEVAJA",
+    },
+    kambasms: {
+      token: process.env.KAMBASMS_TOKEN,
+      baseUrl: "https://api.kambasms.ao/v1",
+    },
+  },
+});
+```
+
+```typescript
+// app.ts
+const sms = await createSender();  // usa ombala com fallback para kambasms
+
+await sms.send({
+  to: "923000000",
+  message: "Mensagem com fallback automático!",
+});
+```
+
+### Envio em lote
 
 ```typescript
 const result = await sms.sendBatch({
-  from: "LEVAJA",
   to: ["923000001", "923000002", "923000003"],
   message: "Promoção especial: 20% off hoje!",
 });
@@ -108,14 +139,13 @@ console.log(`✅ Sucessos: ${result.successful.length}`);
 console.log(`❌ Falhas: ${result.failed.length}`);
 ```
 
-Tratamento de erros
+### Tratamento de erros
 
 ```typescript
-import { AuthenticationError, RateLimitError, ValidationError } from "@justino-code/sender";
+import { AuthenticationError, RateLimitError, ValidationError } from "@jcsolutions/sender";
 
 try {
   await sms.send({
-    from: "LEVAJA",
     to: "923000000",
     message: "Teste",
   });
@@ -132,7 +162,7 @@ try {
 }
 ```
 
-Validar número antes de enviar
+### Validar número antes de enviar
 
 ```typescript
 import { validatePhoneNumber, normalizePhoneNumber } from "@jcsolutions/sender";
@@ -142,7 +172,6 @@ const phone = "923000000";
 if (validatePhoneNumber(phone)) {
   const normalized = normalizePhoneNumber(phone); // +244923000000
   await sms.send({
-    from: "LEVAJA",
     to: phone,
     message: "Olá!",
   });
@@ -151,75 +180,76 @@ if (validatePhoneNumber(phone)) {
 }
 ```
 
-Provider customizado
+### Provider customizado (estendendo Provider)
 
 ```typescript
-import { registerProvider, createSender, type SmsProvider } from "@jcsolutions/sender";
+import { Provider, registerProvider, createSender } from "@jcsolutions/sender";
 
-class MeuProvider implements SmsProvider {
-  async send(data) {
-    return { success: true, provider: "meuprovider", messageId: "123" };
-  }
+class MeuProvider extends Provider {
+  protected readonly providerName = "meuprovider";
   
-  async sendBatch(data) {
-    return { success: true, provider: "meuprovider", successful: data.to, failed: [] };
+  async send(data) {
+    // implementação
+    return { success: true, provider: this.providerName, messageId: "123" };
   }
 }
 
 registerProvider("meuprovider", MeuProvider);
 
-const sms = createSender({
-  providerName: "meuprovider",
-  providerConfig: { token: "xyz", baseUrl: "https://api.com", timeout: 10000 },
+const sms = await createSender("meuprovider", {
+  token: "xyz",
+  baseUrl: "https://api.com",
 });
 ```
 
 ---
 
-🤝 Contribuição
+## 🤝 Contribuição
 
 Contribuições são bem-vindas!
 
-Consulte o guia de contribuição para mais detalhes.
+Consulte o [guia de contribuição](./CONTRIBUTING.md) para mais detalhes.
 
-Reportar bugs
+### Reportar bugs
 
-Abra uma issue
-
----
-
-📄 Licença
-
-MIT © Justino Contingo
+Abra uma [issue](https://github.com/Justino-code/sender/issues)
 
 ---
 
-👤 Autor
+## 📄 Licença
 
-Justino Contingo
-
-· GitHub: @Justino-code
-· Email: justinocontingo@gmail.com
+MIT © [Justino Contingo](https://github.com/Justino-code)
 
 ---
 
-🌟 Agradecimentos
+## 👤 Autor
 
-· Ombala — Gateway angolano de SMS
-· KambaSMS — Plataforma de comunicação angolana
+**Justino Contingo**
+- GitHub: [@Justino-code](https://github.com/Justino-code)
+- Email: justinocontingo@gmail.com
 
 ---
 
-📊 Roadmap
+## 🌟 Agradecimentos
 
-· Provider Ombala
-· Provider KambaSMS
-· Envio em lote
-· Registry pattern para providers customizados
-· Validação de números angolanos
-· Provider Ecsend
-· Provider KwanzaSMS
-· Provider Africell SMS
-· Retry automático
-· Fallback entre providers
-· Webhooks para status de entrega
+- [Ombala](https://useombala.ao) — Gateway angolano de SMS
+- [KambaSMS](https://kambasms.ao) — Plataforma de comunicação angolana
+
+---
+
+## 📊 Roadmap
+
+- [x] Provider Ombala
+- [x] Provider KambaSMS
+- [x] Envio em lote
+- [x] Registry pattern para providers customizados
+- [x] Validação de números angolanos
+- [x] Classe base Provider
+- [x] Configuração centralizada (sender.config.ts)
+- [x] Fallback automático
+- [ ] Provider Sms.to
+- [ ] Provider TelcoSMS
+- [ ] Provider MIMO
+- [ ] Provider WeSender
+- [ ] Retry automático
+- [ ] Webhooks para status de entrega

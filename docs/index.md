@@ -1,4 +1,4 @@
-# Documentação do @jscode/sender
+# Documentação do @jcsolutions/sender
 
 > ⚠️ **Aviso**: Esta biblioteca está em desenvolvimento (alpha). A API pode sofrer alterações até a versão estável 1.0.0.
 
@@ -16,6 +16,7 @@ O @jcsolutions/sender foi construído para simplificar a integração com difere
 - **Envio em lote** - Suporte nativo para múltiplos destinatários
 - **Extensível** - Adiciona qualquer gateway com registry pattern
 - **Validação local** - Normalização de números angolanos
+- **Fallback automático** - Troca de provider em caso de falha
 
 ### Gateways suportados atualmente
 
@@ -44,6 +45,7 @@ No momento, o SDK suporta **dois gateways angolanos**:
 | [Providers](./providers.md) | Detalhes de cada gateway suportado |
 | [Exemplos práticos](./examples.md) | Códigos completos prontos para usar |
 | [Provider customizado](./custom-provider.md) | Como criar e registrar o seu próprio provider |
+| [Configuração](./configuration.md) | Configuração centralizada e fallback automático |
 
 ## Instalação
 
@@ -53,22 +55,22 @@ yarn add @jcsolutions/sender
 npm install @jcsolutions/sender
 ```
 
-Exemplo rápido
+## Exemplo rápido
 
 ```typescript
 import { createSender } from "@jcsolutions/sender";
 
-const sms = createSender({
+const sms = await createSender({
   providerName: "ombala",
   providerConfig: {
     token: process.env.OMBALA_API_KEY,
     baseUrl: "https://api.useombala.ao/v1",
+    from: "LEVAJA",
     timeout: 10000,
   },
 });
 
 const result = await sms.send({
-  from: "LEVAJA",
   to: "923000000",
   message: "Olá mundo!",
 });
@@ -76,11 +78,47 @@ const result = await sms.send({
 console.log(result.success ? "✅ Enviado" : "❌ Falha");
 ```
 
-Requisitos
+## Exemplo com configuração centralizada
 
-· Node.js 18+ (para suporte ao fetch nativo)
-· TypeScript 5+ (recomendado)
+```typescript
+// sender.config.ts
+import { defineConfig } from "@jcsolutions/sender";
 
-Licença
+export default defineConfig({
+  defaultProvider: "ombala",
+  fallbackProviders: ["kambasms"],
+  
+  providers: {
+    ombala: {
+      token: process.env.OMBALA_TOKEN,
+      baseUrl: "https://api.useombala.ao/v1",
+      from: "LEVAJA",
+    },
+    kambasms: {
+      token: process.env.KAMBASMS_TOKEN,
+      baseUrl: "https://api.kambasms.ao/v1",
+    },
+  },
+});
+```
+
+```typescript
+// app.ts - uso simples com fallback automático
+import { createSender } from "@jcsolutions/sender";
+
+const sms = await createSender(); // usa ombala, fallback para kambasms
+
+await sms.send({
+  to: "923000000",
+  message: "Mensagem com fallback automático!",
+});
+```
+
+## Requisitos
+
+- Node.js 18+ (para suporte ao fetch nativo)
+- TypeScript 5+ (recomendado)
+
+## Licença
 
 MIT
