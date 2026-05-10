@@ -52,7 +52,7 @@ Provider Status Documentação
 Ombala ✅ Estável Ver docs
 KambaSMS ✅ Estável Ver docs
 
-Planeados: Ecsend, KwanzaSMS, Africell SMS
+Planeados: Sms.to, TelcoSMS, MIMO, WeSender
 
 ---
 
