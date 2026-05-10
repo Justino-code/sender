@@ -1,6 +1,7 @@
 // src/core/config.ts
 import fs from "fs";
 import path from "path";
+import { pathToFileURL } from 'url';
 import type { ProviderConfig, SenderConfigFile } from "../shared/index.js";
 
 let cachedConfig: SenderConfigFile | null = null;
@@ -14,15 +15,16 @@ export async function loadConfig(): Promise<SenderConfigFile | null> {
 
   const configPath = path.join(process.cwd(), "sender.config.ts");
   const configJsPath = path.join(process.cwd(), "sender.config.js");
-  
+
   let configFile = null;
-  
+
   if (fs.existsSync(configPath)) configFile = configPath;
   else if (fs.existsSync(configJsPath)) configFile = configJsPath;
   else return null;
-  
+
   try {
-    const config = await import(`file://${configFile}`);
+    const configUrl = pathToFileURL(configFile);
+    const config = await import(configUrl.href);
     cachedConfig = config.default;
     return cachedConfig;
   } catch (error) {
