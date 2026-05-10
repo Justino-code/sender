@@ -1,35 +1,40 @@
-export type SendMessageDto = {
-  from: string;
-  to: string;
+// ============ Bases ============
+type BaseMessageDto = {
   message: string;
+  schedule?: string;
 }
 
-export type SendBatchMessageDto = {
-  from: string;
-  to: string[];
-  message: string;
-}
-
-export type SendMessageResponse = {
+type BaseResponse = {
   success: boolean;
   provider: string;
-  messageId?: string;
   raw?: unknown;
 }
 
-export type SendBatchMessageResponse = {
-  success: boolean;
-  provider: string;
-  successful: string[];    // Números que foram enviados com sucesso
-  failed: string[];        // Números que falharam
+// ============ DTOs ============
+export type SendMessageDto = BaseMessageDto & {
+  to: string;
+}
+
+export type SendBatchMessageDto = BaseMessageDto & {
+  to: string[];
+}
+
+// ============ Responses ============
+export type SendMessageResponse = BaseResponse & {
+  messageId?: string;
+}
+
+export type SendBatchMessageResponse = BaseResponse & {
+  successful: string[];
+  failed: string[];
   details?: Array<{
     to: string;
     messageId?: string;
     error?: string;
   }>;
-  raw?: unknown;
 }
 
+// ============ Configurações ============
 export type CreateSenderConfig = {
   providerName: string;
   providerConfig: ProviderConfig;
@@ -39,7 +44,6 @@ export type ProviderConfig = {
   token: string;
   baseUrl: string;
   timeout: number;
-
+  from?: string;
   data?: Record<string, unknown>;
 }
-

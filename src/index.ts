@@ -2,30 +2,30 @@
 import "./providers/index.js";
 
 // Core - Factory
-export { createSender } from "./core/sender.js";
-
-// Core - Builder/Registry
 export { 
+  Provider,
+  createSender,
   registry,
   registerProvider,
   registerProviders,
   getProvider,
   hasProvider,
   listProviders,
-} from "./core/registry.js";
+} from "./core/index.js";
 
-// Types
 export {
+  
+  // Types
+
   SendMessageDto,
   SendBatchMessageDto,
   SendMessageResponse,
   SendBatchMessageResponse,
   CreateSenderConfig,
   ProviderConfig,
-} from "./shared/index.js";
 
 // Errors
-export {
+
   SenderError,
   ConfigurationError,
   AuthenticationError,
@@ -33,14 +33,9 @@ export {
   ValidationError,
   ProviderError,
   TimeoutError,
-} from "./shared/index.js";
-
-// Interfaces
-
-export { IProvider } from "./shared/index.js";
 
 // Utils
-export {
+
   validatePhoneNumber,
   validatePhoneNumbers,
   normalizePhoneNumber,

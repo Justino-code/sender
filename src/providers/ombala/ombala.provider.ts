@@ -1,169 +1,52 @@
-import { 
-  SendMessageDto, 
-  SendBatchMessageDto,
-  SendMessageResponse, 
-  SendBatchMessageResponse,
-  ProviderConfig,
-  IProvider,
-} from "../../shared/index.js";
-
-import { 
-  AuthenticationError, 
-  RateLimitError, 
-  ProviderError,
-  ValidationError,
-  TimeoutError,
+import { Provider } from "../../core/index.js";
+import {
   ConfigurationError,
-  validatePhoneNumber,
-  validatePhoneNumbers,
-  normalizePhoneNumber,
+  SendMessageDto,
+  SendMessageResponse,
+  ValidationError,
 } from "../../shared/index.js";
 
-export class OmbalaProvider implements IProvider {
-  private readonly baseUrl: string;
-  private readonly timeout: number;
-  private readonly token: string;
-
-  constructor(private readonly config: ProviderConfig) {
-    // Validação das configurações obrigatórias
-    if (!config.token) {
-      throw new ConfigurationError("OmbalaProvider: token é obrigatório (API key ou token de acesso)");
-    }
-    
-    if (!config.baseUrl) {
-      throw new ConfigurationError("OmbalaProvider: baseUrl é obrigatória");
-    }
-    
-    this.token = config.token;
-    this.baseUrl = config.baseUrl;
-    this.timeout = config.timeout ?? 10000;
-  }
-
-  private buildHeaders(): HeadersInit {
+export class OmbalaProvider extends Provider {
+  protected buildHeaders(): HeadersInit {
     return {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${this.token}`,
+      "Authorization": `Token ${this.token}`,
     };
   }
 
   async send(data: SendMessageDto): Promise<SendMessageResponse> {
-    if (!validatePhoneNumber(data.to)) {
-      throw new ValidationError(
-        "Formato de número angolano inválido. Use 9 dígitos (ex: 923000000)"
+    if (!this.validatePhone(data.to)) {
+      throw new ValidationError("Formato de número angolano inválido");
+    }
+
+    if (!this.from) {
+      throw new ConfigurationError(
+        "OmbalaProvider: 'from' é obrigatório. Forneça no config."
       );
     }
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+    const body: Record<string, string> = {
+      message: data.message,
+      from: this.from,
+      to: this.normalizePhone(data.to),
+    };
 
-    try {
-      const response = await fetch(`${this.baseUrl}/messages`, {
-        method: "POST",
-        headers: this.buildHeaders(),
-        body: JSON.stringify({
-          from: data.from,
-          to: normalizePhoneNumber(data.to),
-          text: data.message,
-        }),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-      const result = await response.json();
-
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          throw new AuthenticationError(result.message || "Token inválido ou sem permissão");
-        }
-        if (response.status === 429) {
-          throw new RateLimitError(result.message || "Limite de requisições excedido");
-        }
-        if (response.status === 400) {
-          throw new ValidationError(result.message || "Dados inválidos");
-        }
-        throw new ProviderError(result.message || `Erro ${response.status}: ${response.statusText}`);
-      }
-
-      return {
-        success: true,
-        provider: "ombala",
-        messageId: result.id || result.messageId,
-        raw: result,
-      };
-    } catch (error) {
-      clearTimeout(timeoutId);
-      
-      if (error instanceof Error) {
-        if (error.name === "AbortError") {
-          throw new TimeoutError(this.timeout);
-        }
-        if (error instanceof AuthenticationError || 
-            error instanceof RateLimitError || 
-            error instanceof ValidationError || 
-            error instanceof ProviderError) {
-          throw error;
-        }
-      }
-      
-      throw new ProviderError(error instanceof Error ? error.message : "Erro desconhecido");
-    }
-  }
-
-  async sendBatch(data: SendBatchMessageDto): Promise<SendBatchMessageResponse> {
-    const { valid, invalid } = validatePhoneNumbers(data.to);
-    
-    if (valid.length === 0) {
-      throw new ValidationError("Nenhum número válido para envio");
+    if (data.schedule) {
+      body.schedule = data.schedule;
     }
 
-    // Ombala não suporta batch nativamente, então fazemos chamadas individuais
-    const results = await Promise.allSettled(
-      valid.map(phone =>
-        this.send({
-          from: data.from,
-          to: phone,
-          message: data.message,
-        })
-      )
-    );
+    const response = await this.request("/messages", body);
+    const result = await response.json();
 
-    const successful: string[] = [];
-    const failed: string[] = [];
-    const details: Array<{ to: string; messageId?: string; error?: string }> = [];
-
-    results.forEach((result, index) => {
-      const phone = valid[index];
-      
-      if (result.status === "fulfilled") {
-        successful.push(phone);
-        details.push({
-          to: phone,
-          messageId: result.value.messageId,
-        });
-      } else {
-        failed.push(phone);
-        details.push({
-          to: phone,
-          error: result.reason?.message || "Erro desconhecido",
-        });
-      }
-    });
-
-    // Adicionar números inválidos automaticamente aos falhados
-    failed.push(...invalid);
-    invalid.forEach(phone => {
-      details.push({
-        to: phone,
-        error: "Número inválido",
-      });
-    });
+    if (!response.ok) {
+      this.handleErrorResponse(response.status, result?.message);
+    }
 
     return {
-      success: successful.length > 0,
-      provider: "ombala",
-      successful,
-      failed,
-      details,
+      success: true,
+      provider: this.providerName,
+      messageId: this.extractMessageId(result),
+      raw: result,
     };
   }
 }
