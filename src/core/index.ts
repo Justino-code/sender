@@ -15,4 +15,8 @@ export {
   getDefaultProvider
 } from "./config.js";
 
-export { createSender } from "./sender.js";
+export { 
+  createSender,
+  createSenders,
+  createSenderSync,
+ } from "./sender.js";

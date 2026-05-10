@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { OmbalaProvider } from '../../src/providers/ombala/index.js';
-import type { ProviderConfig, SendMessageDto, SendBatchMessageDto } from '../../src/shared/index.js';
+import { OmbalaProvider } from '../../../src/providers/index.js';
+import type { ProviderConfig, SendMessageDto, SendBatchMessageDto } from '../../../src/shared/index.js';
 import { 
   AuthenticationError, 
   RateLimitError, 
   ProviderError,
   ValidationError,
   ConfigurationError,
-} from '../../src/shared/index.js';
+} from '../../../src/shared/index.js';
 
 describe('OmbalaProvider', () => {
   let provider: OmbalaProvider;

@@ -4,7 +4,7 @@ import {
   validatePhoneNumbers,
   normalizePhoneNumber, 
   normalizePhoneNumbers 
-} from '../../src/shared/utils/index.js';
+} from '../../../src/shared/utils/index.js';
 
 describe('Utils - Validação de telefone angolano', () => {
   describe('validatePhoneNumber', () => {

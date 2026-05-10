@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { KambaSmsProvider } from '../../src/providers/kambasms/index.js';
-import type { ProviderConfig, SendMessageDto, SendBatchMessageDto } from '../../src/shared/index.js';
+import { KambaSmsProvider } from '../../../src/providers/index.js';
+import type { ProviderConfig, SendMessageDto, SendBatchMessageDto } from '../../../src/shared/index.js';
 import {
   AuthenticationError,
   RateLimitError,
   ProviderError,
   ValidationError,
-} from '../../src/shared/index.js';
-import { normalizePhoneNumber } from '../../src/shared/index.js';
+} from '../../../src/shared/index.js';
+import { normalizePhoneNumber } from '../../../src/shared/index.js';
 
 describe('KambaSmsProvider', () => {
   let provider: KambaSmsProvider;

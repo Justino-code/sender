@@ -8,6 +8,8 @@ export {
 
   // Sender
   createSender,
+  createSenders,
+  createSenderSync,
 
   // Registry
   registry,

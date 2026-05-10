@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { AuthenticationError, RateLimitError, ProviderError } from '../../src/shared/index.js';
+import { AuthenticationError, RateLimitError, ProviderError } from '../../../src/shared/index.js';
 
 describe('Custom Errors', () => {
   it('AuthenticationError deve ter nome e mensagem corretos', () => {
