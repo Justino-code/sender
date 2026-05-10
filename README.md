@@ -1,4 +1,4 @@
-# @jcsolutions/sender
+v# @jcsolutions/sender
 
 > ⚠️ **Aviso**: Esta biblioteca está em desenvolvimento (alpha). A API pode sofrer alterações até a versão estável 1.0.0.
 
