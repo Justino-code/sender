@@ -1,11 +1,12 @@
-import type { 
-  SmsProvider, 
+import { 
   SendMessageDto, 
   SendBatchMessageDto,
   SendMessageResponse, 
   SendBatchMessageResponse,
   ProviderConfig,
-} from "../shared/index.js";
+  IProvider,
+} from "../../shared/index.js";
+
 import { 
   AuthenticationError, 
   RateLimitError, 
@@ -16,9 +17,9 @@ import {
   validatePhoneNumber,
   validatePhoneNumbers,
   normalizePhoneNumber,
-} from "../shared/index.js";
+} from "../../shared/index.js";
 
-export class OmbalaProvider implements SmsProvider {
+export class OmbalaProvider implements IProvider {
   private readonly baseUrl: string;
   private readonly timeout: number;
   private readonly token: string;

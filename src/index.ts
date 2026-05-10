@@ -15,12 +15,11 @@ export {
 } from "./core/registry.js";
 
 // Types
-export type {
+export {
   SendMessageDto,
   SendBatchMessageDto,
   SendMessageResponse,
   SendBatchMessageResponse,
-  SmsProvider,
   CreateSenderConfig,
   ProviderConfig,
 } from "./shared/index.js";
@@ -35,6 +34,10 @@ export {
   ProviderError,
   TimeoutError,
 } from "./shared/index.js";
+
+// Interfaces
+
+export { IProvider } from "./shared/index.js";
 
 // Utils
 export {

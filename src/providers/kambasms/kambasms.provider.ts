@@ -1,11 +1,12 @@
-import type {
-  SmsProvider,
+import {
   SendMessageDto,
   SendBatchMessageDto,
   SendMessageResponse,
   SendBatchMessageResponse,
   ProviderConfig,
-} from "../shared/index.js";
+  IProvider,
+} from "../../shared/index.js";
+
 import {
   AuthenticationError,
   RateLimitError,
@@ -17,9 +18,9 @@ import {
   validatePhoneNumbers,
   normalizePhoneNumber,
   normalizePhoneNumbers,
-} from "../shared/index.js";
+} from "../../shared/index.js";
 
-export class KambaSmsProvider implements SmsProvider {
+export class KambaSmsProvider implements IProvider {
   private readonly baseUrl: string;
   private readonly timeout: number;
   private readonly token: string;

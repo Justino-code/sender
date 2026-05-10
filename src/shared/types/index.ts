@@ -1,23 +1,23 @@
-export interface SendMessageDto {
+export type SendMessageDto = {
   from: string;
   to: string;
   message: string;
 }
 
-export interface SendBatchMessageDto {
+export type SendBatchMessageDto = {
   from: string;
   to: string[];
   message: string;
 }
 
-export interface SendMessageResponse {
+export type SendMessageResponse = {
   success: boolean;
   provider: string;
   messageId?: string;
   raw?: unknown;
 }
 
-export interface SendBatchMessageResponse {
+export type SendBatchMessageResponse = {
   success: boolean;
   provider: string;
   successful: string[];    // Números que foram enviados com sucesso
@@ -30,17 +30,12 @@ export interface SendBatchMessageResponse {
   raw?: unknown;
 }
 
-export interface SmsProvider {
-  send(data: SendMessageDto): Promise<SendMessageResponse>;
-  sendBatch(data: SendBatchMessageDto): Promise<SendBatchMessageResponse>;
-}
-
-export interface CreateSenderConfig {
+export type CreateSenderConfig = {
   providerName: string;
   providerConfig: ProviderConfig;
 }
 
-export interface ProviderConfig {
+export type ProviderConfig = {
   token: string;
   baseUrl: string;
   timeout: number;

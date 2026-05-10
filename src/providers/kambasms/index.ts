@@ -1,0 +1,1 @@
+export { KambaSmsProvider } from "./kambasms.provider.js";

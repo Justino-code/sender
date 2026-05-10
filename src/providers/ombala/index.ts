@@ -1,0 +1,1 @@
+export { OmbalaProvider } from "./ombala.provider.js";

@@ -1,12 +1,12 @@
-import { registerProviders } from "../core/registry.js";
-import { OmbalaProvider } from "./ombala.provider.js";
-import { KambaSmsProvider } from "./kambasms.provider.js";
+export { OmbalaProvider } from "./ombala/index.js";
+export { KambaSmsProvider } from "./kambasms/index.js";
 
-// Registra todos os providers built-in
+// Registrar providers automaticamente
+import { registerProviders } from "../core/registry.js";
+import { OmbalaProvider } from "./ombala/index.js";
+import { KambaSmsProvider } from "./kambasms/index.js";
+
 registerProviders({
   ombala: OmbalaProvider,
   kambasms: KambaSmsProvider,
 });
-
-export { OmbalaProvider } from "./ombala.provider.js";
-export { KambaSmsProvider } from "./kambasms.provider.js";
