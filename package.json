@@ -53,8 +53,7 @@
     "prepublishOnly": "yarn build",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs",
-    "docs:deploy": "yarn docs:build && gh-pages -d docs/.vitepress/dist -b gh-pages"
+    "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
     "@types/node": "^25.6.2",
