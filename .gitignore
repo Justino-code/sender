@@ -41,3 +41,7 @@ coverage/
 *.tmp
 .cache/
 temp/
+
+# Documentação build
+docs/.vitepress/dist/
+docs/.vitepress/cache/
