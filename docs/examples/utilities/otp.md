@@ -260,4 +260,4 @@ await sms.send({
 
 ## Próximo passo
 
-- [Voltar ao índice de exemplos](../examples.md)
+- [Voltar ao índice de exemplos](/examples.md)
