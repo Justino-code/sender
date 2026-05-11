@@ -3,7 +3,6 @@ import {
   SendMessageDto,
   SendMessageResponse,
   ValidationError,
-  normalizePhoneNumber
 } from "../../shared/index.js";
 
 export class KambaSmsProvider extends Provider {
@@ -22,7 +21,7 @@ export class KambaSmsProvider extends Provider {
     }
 
     const body = {
-      to: normalizePhoneNumber(data.to),
+      to: this.normalizePhone(data.to, 'i'),
       text: data.message,
     };
 
@@ -30,7 +29,7 @@ export class KambaSmsProvider extends Provider {
     const result = await response.json();
 
     if (!response.ok) {
-      this.handleErrorResponse(response.status, result?.message);
+      this.handleErrorResponse(response.status, result);
     }
 
     return {

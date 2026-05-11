@@ -15,20 +15,12 @@
   "files": [
     "dist",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "keywords": [
     "sms",
     "otp",
-    "2fa",
-    "messaging",
-    "notifications",
-    "authentication",
-    "verification",
-    "nodejs",
-    "typescript",
-    "sdk",
-    "api",
     "angola"
   ],
   "author": "Justino Contingo <justinocontingo@gmail.com>",
@@ -52,11 +44,18 @@
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
     "test:coverage": "vitest --coverage",
+    "test:e2e": "vitest run tests/e2e",
+    "test:e2e:ombala": "vitest run tests/e2e/ombala.e2e.test.ts",
+    "test:e2e:kambasms": "vitest run tests/e2e/kambasms.e2e.test.ts",
+    "test:e2e:batch": "vitest run tests/e2e/ombala.batch.e2e.test.ts",
+    "test:performance": "vitest run tests/performance",
+    "test:all": "yarn test:unit && yarn test:integration && yarn test:performance",
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
     "@types/node": "^25.6.2",
     "@vitest/coverage-v8": "^4.1.5",
+    "dotenv": "^17.4.2",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.5"

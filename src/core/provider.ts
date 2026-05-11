@@ -13,8 +13,9 @@ import {
     TimeoutError,
     validatePhoneNumber,
     validatePhoneNumbers,
-    normalizePhoneNumber,
     normalizePhoneNumbers,
+    normalizeToNational,
+    normalizeToInternational,
 } from "../shared/index.js";
 
 /**
@@ -63,8 +64,8 @@ export abstract class Provider implements IProvider {
      * Normaliza um número de telefone
      * Pode ser sobrescrito por providers com formatos específicos
      */
-    protected normalizePhone(phone: string): string {
-        return normalizePhoneNumber(phone);
+    protected normalizePhone(phone: string, formato?: string): string {
+        return formato !== 'i' ? normalizeToNational(phone) : normalizeToInternational(phone);
     }
 
     /**
@@ -121,20 +122,22 @@ export abstract class Provider implements IProvider {
      * Trata a resposta da API e converte em erro apropriado
      * Pode ser sobrescrito por providers com códigos de erro específicos
      */
-    protected handleErrorResponse(status: number, message: string): never {
+    protected handleErrorResponse(status: number, response: any): never {
+        const message = response?.message || response?.error || JSON.stringify(response);
+
         if (status === 401 || status === 403) {
-            throw new AuthenticationError(message || "Token inválido ou sem permissão");
+            throw new AuthenticationError(message, { status, response });
         }
 
         if (status === 429) {
-            throw new RateLimitError(message || "Limite de requisições excedido");
+            throw new RateLimitError(message, { status, response });
         }
 
         if (status === 400) {
-            throw new ValidationError(message || "Dados inválidos");
+            throw new ValidationError(message, { status, response });
         }
 
-        throw new ProviderError(message || `Erro ${status}: falha na requisição`);
+        throw new ProviderError(message, { status, response });
     }
 
     /**

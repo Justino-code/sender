@@ -3,7 +3,6 @@ export function validatePhoneNumber(to: string): boolean {
   // Remove espaços e caracteres especiais
   const cleaned = to.replace(/\s/g, '');
   
-  // Aceita números com ou sem +244, mas valida o padrão angolano
   // Formatos aceites:
   // - 923000000 (9 dígitos, começa com 9)
   // - +244923000000 (formato internacional)
@@ -28,7 +27,12 @@ export function validatePhoneNumbers(to: string[]): { valid: string[]; invalid: 
   return { valid, invalid };
 }
 
-export function normalizePhoneNumber(to: string): string {
+/**
+ * Normaliza número para formato internacional (+244...)
+ * Exemplo: 923000000 → +244923000000
+ * Uso: KambaSMS, Twilio, Infobip
+ */
+export function normalizeToInternational(to: string): string {
   // Remove espaços
   let cleaned = to.replace(/\s/g, '');
   
@@ -51,6 +55,44 @@ export function normalizePhoneNumber(to: string): string {
   return `+244${cleaned}`;
 }
 
+/**
+ * Normaliza número para formato nacional (sem +244)
+ * Exemplo: +244923000000 → 923000000
+ * Uso: Ombala (não aceita +244)
+ */
+export function normalizeToNational(to: string): string {
+  // Remove espaços
+  let cleaned = to.replace(/\s/g, '');
+  
+  // Remove +244 se existir
+  if (cleaned.startsWith('+244')) {
+    cleaned = cleaned.slice(4);
+  }
+  
+  // Remove 0 inicial se existir
+  if (cleaned.startsWith('0')) {
+    cleaned = cleaned.slice(1);
+  }
+  
+  // Retorna apenas os 9 dígitos
+  return cleaned.slice(-9);
+}
+
+/**
+ * @deprecated Use normalizeToInternational ou normalizeToNational
+ */
+export function normalizePhoneNumber(to: string): string {
+  return normalizeToInternational(to);
+}
+
 export function normalizePhoneNumbers(to: string[]): string[] {
-  return to.map(phone => normalizePhoneNumber(phone));
+  return to.map(phone => normalizeToInternational(phone));
+}
+
+export function normalizeToInternationalBatch(to: string[]): string[] {
+  return to.map(phone => normalizeToInternational(phone));
+}
+
+export function normalizeToNationalBatch(to: string[]): string[] {
+  return to.map(phone => normalizeToNational(phone));
 }

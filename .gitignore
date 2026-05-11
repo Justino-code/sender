@@ -9,8 +9,9 @@ dist/
 
 # Ambiente
 .env
-.env.local
-.env.production
+.env.*
+!.env.example
+!.env.test.example
 
 # IDE
 .vscode/
