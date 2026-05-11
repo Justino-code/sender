@@ -1,9 +1,12 @@
 import { defineConfig } from 'vitepress'
 
+const currentYear = new Date().getFullYear()
+
 export default defineConfig({
   title: '@jcsolutions/sender',
   description: 'SDK para envio de SMS com suporte a gateways angolanos',
-  base: '/sender/', // para GitHub Pages
+  base: '/sender/',
+  
   themeConfig: {
     nav: [
       { text: 'Guia', link: '/getting-started' },
@@ -11,6 +14,7 @@ export default defineConfig({
       { text: 'Exemplos', link: '/examples' },
       { text: 'Providers', link: '/providers' }
     ],
+    
     sidebar: {
       '/': [
         {
@@ -56,13 +60,16 @@ export default defineConfig({
         }
       ]
     },
+    
     socialLinks: [
       { icon: 'github', link: 'https://github.com/Justino-code/sender' }
     ],
+    
     footer: {
       message: 'MIT License',
-      copyright: 'Copyright © 2024 Justino Contingo'
+      copyright: `Copyright © ${currentYear} Justino Contingo`
     },
+    
     search: {
       provider: 'local'
     }
