@@ -1,6 +1,6 @@
 {
   "name": "@jcsolutions/sender",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.4",
   "description": "SDK leve e extensível para envio de SMS e OTP em Node.js com suporte a gateways angolanos.",
   "type": "module",
   "main": "./dist/index.cjs",
