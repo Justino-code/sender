@@ -34,7 +34,7 @@
   },
   "homepage": "https://github.com/Justino-code/sender#readme",
   "engines": {
-    "node": ">=18"
+    "node": ">=24.0.0"
   },
   "packageManager": "yarn@1.22.22",
   "scripts": {
