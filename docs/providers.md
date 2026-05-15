@@ -60,6 +60,6 @@ Para usar um provider que não está na lista, consulte o guia [Provider customi
 |----------|--------|----------|
 | Ombala | ✅ Estável | - |
 | KambaSMS | 🚧 Em desenvolvimento | Em breve |
-| Ecsend | 📋 Planeado | TBD |
-| KwanzaSMS | 📋 Planeado | TBD |
-| Africell SMS | 📋 Planeado | TBD |
+| Sms.to | 📋 Planeado | TBD |
+| TelcoSMS | 📋 Planeado | TBD |
+| MIMO | 📋 Planeado | TBD |
