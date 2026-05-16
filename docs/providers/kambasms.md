@@ -65,15 +65,35 @@ const result = await sms.send({
 });
 ```
 
-## Envio em lote
+## Envio em lote (simples)
 
 ```typescript
 const result = await sms.sendBatch({
   to: ["923000001", "923000002", "923000003"],
   message: "Promoção especial!",
-  campaignName: "Promoção Natal", // ← obrigatório
+  campaignName: "Promoção Natal",  // ← obrigatório
 });
 ```
+
+## Envio em lote com agendamento
+
+```typescript
+const result = await sms.sendBatch({
+  to: ["923000001", "923000002", "923000003"],
+  message: "Promoção especial!",
+  campaignName: "Promoção Natal",
+  schedule: "2025-12-25T08:00:00.000Z",  // agenda todo o lote
+});
+```
+
+## Regras de negócio
+
+| Operação | `from` obrigatório | `campaignName` obrigatório |
+|----------|-------------------|---------------------------|
+| Envio simples | ❌ Não | - |
+| Envio com agendamento | ✅ Sim | - |
+| Envio em lote | ✅ Sim | ✅ Sim |
+| Lote com agendamento | ✅ Sim | ✅ Sim |
 
 ## Limitações
 
@@ -95,10 +115,51 @@ export default defineConfig({
     kambasms: {
       token: process.env.KAMBASMS_TOKEN,
       baseUrl: "https://nexasms-api.onrender.com",
-      from: "LEVAJA",
+      from: "LEVAJA",  // necessário para batch e agendamento
     },
   },
 });
+```
+
+## Resposta de sucesso (envio simples)
+
+```json
+{
+  "success": true,
+  "provider": "kambasms",
+  "messageId": "SMxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "raw": {
+    "success": true,
+    "message_id": "SMxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "status": "queued",
+    "to": "+244912345678",
+    "sender_id": "LEVAJA",
+    "remaining_balance": 99,
+    "segments": 1,
+    "timestamp": "2025-01-01T12:00:00.000Z"
+  }
+}
+```
+
+## Resposta de sucesso (envio em lote)
+
+```json
+{
+  "success": true,
+  "provider": "kambasms",
+  "successful": ["923000001", "923000002", "923000003"],
+  "failed": [],
+  "details": [
+    { "to": "923000001", "messageId": "job_123" },
+    { "to": "923000002", "messageId": "job_123" },
+    { "to": "923000003", "messageId": "job_123" }
+  ],
+  "raw": {
+    "success": true,
+    "job_id": "uuid",
+    "total": 3
+  }
+}
 ```
 
 ## Próximos passos
