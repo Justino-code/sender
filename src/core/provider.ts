@@ -14,8 +14,8 @@ import {
     validatePhoneNumber,
     validatePhoneNumbers,
     normalizePhoneNumbers,
-    normalizeToNational,
-    normalizeToInternational,
+    normalizePhoneNumber,
+    ValidatedPhone,
 } from "../shared/index.js";
 
 /**
@@ -32,14 +32,25 @@ export abstract class Provider implements IProvider {
     protected readonly from?: string;
     protected readonly customData?: Record<string, unknown>;
 
+    // Constantes de limite (podem ser sobrescritas por providers)
+    protected readonly maxBatchSize: number = 1000;
+    protected readonly maxMessageLength: number = 160;
+    protected readonly rateLimitPerHour?: number;
+
     public constructor(config: ProviderConfig) {
-        // Validações obrigatórias
         if (!config.token) {
             throw new ConfigurationError("Token é obrigatório. Forneça sua API key ou token de acesso.");
         }
 
         if (!config.baseUrl) {
             throw new ConfigurationError("BaseUrl é obrigatória. Forneça a URL base da API do provider.");
+        }
+
+        if (config.data?.maxBatchSize) {
+            this.maxBatchSize = config.data.maxBatchSize as number;
+        }
+        if (config.data?.maxMessageLength) {
+            this.maxMessageLength = config.data.maxMessageLength as number;
         }
 
         this.token = config.token;
@@ -62,17 +73,16 @@ export abstract class Provider implements IProvider {
 
     /**
      * Normaliza um número de telefone
-     * Pode ser sobrescrito por providers com formatos específicos
      */
-    protected normalizePhone(phone: string, formato?: string): string {
-        return formato !== 'i' ? normalizeToNational(phone) : normalizeToInternational(phone);
+    protected normalizePhone(phone: string, internacional: boolean = false): string {
+        return normalizePhoneNumber(phone, internacional);
     }
 
     /**
      * Normaliza múltiplos números de telefone
      */
-    protected normalizePhones(phones: string[]): string[] {
-        return normalizePhoneNumbers(phones);
+    protected normalizePhones(phones: string[], internacional: boolean = false): string[] {
+        return normalizePhoneNumbers(phones, internacional);
     }
 
     /**
@@ -85,13 +95,53 @@ export abstract class Provider implements IProvider {
     /**
      * Valida múltiplos números e separa válidos de inválidos
      */
-    protected validatePhones(phones: string[]): { valid: string[]; invalid: string[] } {
+    protected validatePhones(phones: string[]): ValidatedPhone {
         return validatePhoneNumbers(phones);
     }
 
     /**
+     * Valida o tamanho da mensagem
+     */
+    protected validateMessageLength(message: string, maxLength: number = 160): void {
+        if (message.length > maxLength) {
+            throw new ValidationError(
+                `Mensagem muito longa: ${message.length} caracteres. Máximo ${maxLength} caracteres.`
+            );
+        }
+    }
+
+    /**
+     * Valida se a mensagem contém URLs (não permitido)
+     */
+    protected validateNoUrls(message: string): void {
+        const urlPattern = /https?:\/\/|www\.|\.(com|ao|net|org)\b/i;
+        if (urlPattern.test(message)) {
+            throw new ValidationError(
+                "Mensagens com links ou URLs não são permitidas."
+            );
+        }
+    }
+
+    protected validateBatchSize(validCount: number): void {
+        if (validCount > this.maxBatchSize) {
+            throw new ValidationError(
+                `Muitos destinatários: ${validCount}. Máximo ${this.maxBatchSize} por campanha.`
+            );
+        }
+    }
+
+    protected validatedBatchPhoneNumbers(phoneNumbers: string[]): ValidatedPhone {
+        const numbers = this.validatePhones(phoneNumbers);
+
+        if (numbers.valid.length === 0) {
+            throw new ValidationError("Nenhum número válido para envio");
+        }
+
+        return numbers;
+    }
+
+    /**
      * Método base para fazer requisições HTTP
-     * Inclui timeout, abort controller e tratamento básico de erros
      */
     protected async request(url: string, body: unknown): Promise<Response> {
         const controller = new AbortController();
@@ -120,7 +170,6 @@ export abstract class Provider implements IProvider {
 
     /**
      * Trata a resposta da API e converte em erro apropriado
-     * Pode ser sobrescrito por providers com códigos de erro específicos
      */
     protected handleErrorResponse(status: number, response: any): never {
         const message = response?.message || response?.error || JSON.stringify(response);
@@ -142,16 +191,13 @@ export abstract class Provider implements IProvider {
 
     /**
      * Extrai o messageId da resposta
-     * Pode ser sobrescrito por providers com campos diferentes
      */
     protected extractMessageId(result: any): string | undefined {
-        return result?.id || result?.messageId || result?.smsId;
+        return result?.id || result?.messageId || result?.smsId || result?.message_id;
     }
 
     /**
      * Envio em lote - implementação base
-     * Faz chamadas individuais para cada número
-     * Providers com suporte nativo a batch devem sobrescrever
      */
     async sendBatch(data: SendBatchMessageDto): Promise<SendBatchMessageResponse> {
         const { valid, invalid } = this.validatePhones(data.to);
@@ -160,7 +206,6 @@ export abstract class Provider implements IProvider {
             throw new ValidationError("Nenhum número válido para envio");
         }
 
-        // Enviar para cada número válido
         const results = await Promise.allSettled(
             valid.map(phone =>
                 this.send({
@@ -192,7 +237,6 @@ export abstract class Provider implements IProvider {
             }
         });
 
-        // Adicionar números inválidos aos falhados
         failed.push(...invalid);
         invalid.forEach(phone => {
             details.push({
@@ -210,8 +254,5 @@ export abstract class Provider implements IProvider {
         };
     }
 
-    /**
-     * Método abstrato - cada provider deve implementar seu envio específico
-     */
     abstract send(data: SendMessageDto): Promise<SendMessageResponse>;
 }

@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { OmbalaProvider } from '../../../src/providers/index.js';
 import type { ProviderConfig, SendMessageDto, SendBatchMessageDto } from '../../../src/shared/index.js';
-import { 
-  AuthenticationError, 
-  RateLimitError, 
+import {
+  AuthenticationError,
+  RateLimitError,
   ProviderError,
   ValidationError,
   ConfigurationError,
@@ -52,7 +52,7 @@ describe('OmbalaProvider', () => {
       expect(result.provider).toBe('ombala');
       expect(result.messageId).toBe('msg_123');
       expect(global.fetch).toHaveBeenCalledTimes(1);
-      
+
       // Verificar se o body contém o from da configuração
       const fetchCall = vi.mocked(global.fetch).mock.calls[0];
       const body = JSON.parse(fetchCall[1]?.body as string);
@@ -94,9 +94,9 @@ describe('OmbalaProvider', () => {
 
     it('deve lançar ValidationError para número inválido', async () => {
       const invalidData = { ...sendData, to: '813000000' };
-      
+
       global.fetch = vi.fn();
-      
+
       await expect(provider.send(invalidData)).rejects.toThrow(ValidationError);
       await expect(provider.send(invalidData)).rejects.toThrow(
         'Formato de número angolano inválido'
@@ -129,13 +129,21 @@ describe('OmbalaProvider', () => {
     };
 
     it('deve enviar SMS em lote com sucesso parcial', async () => {
+      // ✅ Mock correto para Ombala (com recipients)
       const mockResponse = {
         ok: true,
-        json: async () => ({ id: 'msg_123' }),
+        json: async () => ({
+          id: 'batch_123',
+          recipients: [
+            { phone_number: '923000001', message_status: 'PENDING', message_id: 'msg_001' },
+            { phone_number: '923000002', message_status: 'PENDING', message_id: 'msg_002' },
+          ]
+        }),
       };
       global.fetch = vi.fn().mockResolvedValue(mockResponse);
 
       const result = await provider.sendBatch(batchData);
+      
 
       expect(result.success).toBe(true);
       expect(result.provider).toBe('ombala');
@@ -144,19 +152,19 @@ describe('OmbalaProvider', () => {
       expect(result.failed).toContain('813000000');
       expect(result.failed).toContain('invalid');
       expect(result.details).toHaveLength(4);
-      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
     });
 
-    it('deve lançar ValidationError quando não há números válidos', async () => {
-      const invalidBatch = {
-        to: ['invalid1', 'invalid2'],
-        message: 'Test batch',
-      };
+  it('deve lançar ValidationError quando não há números válidos', async () => {
+    const invalidBatch = {
+      to: ['invalid1', 'invalid2'],
+      message: 'Test batch',
+    };
 
-      await expect(provider.sendBatch(invalidBatch)).rejects.toThrow(ValidationError);
-      await expect(provider.sendBatch(invalidBatch)).rejects.toThrow(
-        'Nenhum número válido para envio'
-      );
-    });
+    await expect(provider.sendBatch(invalidBatch)).rejects.toThrow(ValidationError);
+    await expect(provider.sendBatch(invalidBatch)).rejects.toThrow(
+      'Nenhum número válido para envio'
+    );
   });
+});
 });

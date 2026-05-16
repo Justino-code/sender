@@ -49,7 +49,7 @@ console.log(result.success ? "✅ Enviado" : "❌ Falha");
 | Provider | Status |
 |----------|--------|
 | Ombala | ✅ |
-| KambaSMS | ✅ |
+| KambaSMS | 🚧 Em desenvolvimento |
 | Sms.to, TelcoSMS, MIMO, WeSender | 🚧 Planeados |
 
 ## 📄 Licença

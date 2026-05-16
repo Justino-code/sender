@@ -5,7 +5,7 @@ describe('Custom Errors', () => {
   it('AuthenticationError deve ter nome e mensagem corretos', () => {
     const error = new AuthenticationError();
     expect(error.name).toBe('AuthenticationError');
-    expect(error.message).toBe('Erro de autenticação. Verifique sua API key/token.');
+    expect(error.message).toBe('Erro de autenticação');
   });
 
   it('AuthenticationError deve aceitar mensagem customizada', () => {

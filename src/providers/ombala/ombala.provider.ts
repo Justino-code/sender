@@ -69,15 +69,11 @@ export class OmbalaProvider extends Provider {
  * Suporta múltiplos números separados por vírgula
  */
   async sendBatch(data: SendBatchMessageDto): Promise<SendBatchMessageResponse> {
-    const { valid, invalid } = this.validatePhones(data.to);
-
-    if (valid.length === 0) {
-      throw new ValidationError("Nenhum número válido para envio");
-    }
+    const { valid, invalid } = this.validatedBatchPhoneNumbers(data.to);
 
     // Ombala aceita múltiplos números separados por vírgula
     const toBatch = valid.map(phone => this.normalizePhone(phone)).join(',');
-
+    
     if (!this.from) {
       throw new ConfigurationError(
         "OmbalaProvider: 'from' é obrigatório. Forneça no config."

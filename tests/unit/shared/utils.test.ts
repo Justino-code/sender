@@ -58,22 +58,42 @@ describe('Utils - Validação de telefone angolano', () => {
   });
 
   describe('normalizePhoneNumber', () => {
-    it('deve normalizar números locais (9 dígitos)', () => {
-      expect(normalizePhoneNumber('923000000')).toBe('+244923000000');
-      expect(normalizePhoneNumber('933000000')).toBe('+244933000000');
+    it('deve normalizar números locais (9 dígitos) para internacionais (+244)', () => {
+      expect(normalizePhoneNumber('923000000', true)).toBe('+244923000000');
+      expect(normalizePhoneNumber('933000000', true)).toBe('+244933000000');
     });
 
     it('deve normalizar números com 0', () => {
-      expect(normalizePhoneNumber('0923000000')).toBe('+244923000000');
+      expect(normalizePhoneNumber('0923000000', true)).toBe('+244923000000');
     });
 
     it('deve manter números já internacionais', () => {
-      expect(normalizePhoneNumber('+244923000000')).toBe('+244923000000');
+      expect(normalizePhoneNumber('+244923000000', true)).toBe('+244923000000');
     });
 
     it('deve remover espaços', () => {
-      expect(normalizePhoneNumber('923 000 000')).toBe('+244923000000');
-      expect(normalizePhoneNumber('+244 923 000 000')).toBe('+244923000000');
+      expect(normalizePhoneNumber('923 000 000', true)).toBe('+244923000000');
+      expect(normalizePhoneNumber('+244 923 000 000', true)).toBe('+244923000000');
+    });
+  });
+
+  describe('normalizePhoneNumber', () => {
+    it('deve normalizar números locais (9 dígitos)', () => {
+      expect(normalizePhoneNumber('+244923000000')).toBe('923000000');
+      expect(normalizePhoneNumber('+244933000000')).toBe('933000000');
+    });
+
+    it('deve normalizar números com 0', () => {
+      expect(normalizePhoneNumber('0923000000')).toBe('923000000');
+    });
+
+    it('deve manter números já nacional', () => {
+      expect(normalizePhoneNumber('923000000')).toBe('923000000');
+    });
+
+    it('deve remover espaços', () => {
+      expect(normalizePhoneNumber('923 000 000')).toBe('923000000');
+      expect(normalizePhoneNumber('+244 923 000 000')).toBe('923000000');
     });
   });
 
@@ -83,7 +103,7 @@ describe('Utils - Validação de telefone angolano', () => {
         '923000000',
         '0933000000',
         '+244943000000'
-      ]);
+      ], true);
       
       expect(result).toEqual([
         '+244923000000',

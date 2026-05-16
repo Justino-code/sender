@@ -4,6 +4,8 @@
 
 SDK para envio de SMS com suporte a gateways angolanos.
 
+[![GitHub](https://img.shields.io/badge/GitHub-Justino--code/sender-181717?logo=github)](https://github.com/Justino-code/sender)
+
 ## Introdução
 
 O **@jcsolutions/sender** é uma biblioteca simples, extensível e type-safe para envio de SMS em aplicações Node.js. Foi construída com foco em **developers angolanos** que precisam integrar diferentes gateways de SMS (Ombala, KambaSMS, etc) sem reescrever lógica de integração.

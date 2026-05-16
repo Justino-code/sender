@@ -17,6 +17,7 @@ export type SendMessageDto = BaseMessageDto & {
 
 export type SendBatchMessageDto = BaseMessageDto & {
   to: string[];
+  campaignName?: string;
 }
 
 // ============ Responses ============
@@ -43,13 +44,24 @@ export type CreateSenderConfig = {
 export type ProviderConfig = {
   token: string;
   baseUrl: string;
-  timeout: number;
+  timeout?: number;
   from?: string;
-  data?: Record<string, unknown>;
+  data?: {
+    senderId?: string;
+    maxBatchSize?: number;
+    maxMessageLength?: number;
+    rateLimitPerHour?: number;
+    [key: string]: unknown;
+  };
 }
 
 export type SenderConfigFile = {
   defaultProvider?: string;
   fallbackProviders?: string[];
   providers: Record<string, Partial<ProviderConfig>>;
+}
+
+export type ValidatedPhone = { 
+  valid: string[]; 
+  invalid: string[];
 }
