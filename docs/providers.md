@@ -10,23 +10,24 @@ O @jcsolutions/sender SDK suporta múltiplos gateways de SMS angolanos. Cada pro
 |----------|--------|--------------|
 | **Ombala** | ✅ Estável | [Documentação completa](./providers/ombala.md) |
 | **KambaSMS** | 🚧 Em desenvolvimento | [Documentação completa](./providers/kambasms.md) |
+| **TelcoSMS** | 🚧 Em desenvolvimento | [Documentação completa](./providers/telcosms.md) |
 
 > ⚠️ **Nota**: Providers em desenvolvimento podem ter APIs instáveis e não são recomendados para produção.
 
 ## Comparação rápida
 
-| Característica | Ombala | KambaSMS |
-|----------------|--------|----------|
-| Autenticação | `Token {token}` | `X-API-Key: {token}` |
-| Campo mensagem | `message` | `text` |
-| `from` obrigatório | ✅ Sim | ❌ Não |
-| Agendamento | ✅ Sim | ❌ Não |
-| Batch nativo | ✅ Sim (vírgula) | ❌ Não |
-| Documentação | [Ver](./providers/ombala.md) | [Ver](./providers/kambasms.md) |
+| Característica | Ombala | KambaSMS | TelcoSMS |
+|----------------|--------|----------|----------|
+| Autenticação | `Token {token}` | `X-API-Key: {token}` | `api_key_app` |
+| Campo mensagem | `message` | `text` | `message_body` |
+| `from` obrigatório | ✅ Sim | ❌ Não | ❌ Não |
+| Agendamento | ✅ Sim | ✅ Sim | ❌ Não |
+| Batch nativo | ✅ Sim (vírgula) | ✅ Sim | ❌ Não |
+| Documentação | [Ver](./providers/ombala.md) | [Ver](./providers/kambasms.md) | [Ver](./providers/telcosms.md) |
 
 ## Configuração recomendada com fallback
 
-Para maior resiliência, configure ambos os providers com fallback automático:
+Para maior resiliência, configure os providers com fallback automático:
 
 ```typescript
 // sender.config.ts
@@ -34,7 +35,7 @@ import { defineConfig } from "@jcsolutions/sender";
 
 export default defineConfig({
   defaultProvider: "ombala",
-  fallbackProviders: ["kambasms"],
+  fallbackProviders: ["kambasms", "telcosms"],
   
   providers: {
     ombala: {
@@ -44,7 +45,11 @@ export default defineConfig({
     },
     kambasms: {
       token: process.env.KAMBASMS_TOKEN,
-      baseUrl: "https://api.kambasms.ao/v1",
+      baseUrl: "https://nexasms-api.onrender.com",
+    },
+    telcosms: {
+      token: process.env.TELCOSMS_API_KEY,
+      baseUrl: "https://www.telcosms.co.ao",
     },
   },
 });
@@ -60,6 +65,6 @@ Para usar um provider que não está na lista, consulte o guia [Provider customi
 |----------|--------|----------|
 | Ombala | ✅ Estável | - |
 | KambaSMS | 🚧 Em desenvolvimento | Em breve |
+| TelcoSMS | 🚧 Em desenvolvimento | Em breve |
 | Sms.to | 📋 Planeado | TBD |
-| TelcoSMS | 📋 Planeado | TBD |
 | MIMO | 📋 Planeado | TBD |

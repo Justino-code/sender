@@ -56,7 +56,8 @@ export default defineConfig({
           items: [
             { text: 'Visão geral', link: '/providers' },
             { text: 'Ombala', link: '/providers/ombala' },
-            { text: 'KambaSMS', link: '/providers/kambasms' }
+            { text: 'KambaSMS', link: '/providers/kambasms' },
+            { text: 'TelcoSMS', link: '/providers/telcosms' },
           ]
         },
         {
