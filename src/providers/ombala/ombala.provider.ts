@@ -29,6 +29,8 @@ export class OmbalaProvider extends Provider {
   }
 
   async send(data: SendMessageDto): Promise<SendMessageResponse> {
+    this.validateMessageLength(data.message);
+
     if (!this.validatePhone(data.to)) {
       throw new ValidationError("Formato de número angolano inválido");
     }
@@ -44,6 +46,7 @@ export class OmbalaProvider extends Provider {
       from: this.from,
       to: this.normalizePhone(data.to),
     };
+
 
     if (data.schedule) {
       body.schedule = data.schedule;
@@ -69,11 +72,14 @@ export class OmbalaProvider extends Provider {
  * Suporta múltiplos números separados por vírgula
  */
   async sendBatch(data: SendBatchMessageDto): Promise<SendBatchMessageResponse> {
+
+    this.validateMessageLength(data.message);
+
     const { valid, invalid } = this.validatedBatchPhoneNumbers(data.to);
 
     // Ombala aceita múltiplos números separados por vírgula
     const toBatch = valid.map(phone => this.normalizePhone(phone)).join(',');
-    
+
     if (!this.from) {
       throw new ConfigurationError(
         "OmbalaProvider: 'from' é obrigatório. Forneça no config."
