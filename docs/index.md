@@ -21,6 +21,10 @@ O **@jcsolutions/sender** é uma biblioteca simples, extensível e type-safe par
 - **Extensível** — Adicione qualquer gateway através do registry pattern
 - **Fallback automático** — Resiliência com múltiplos providers
 
+## Recursos futuros
+
+Consulte o [Roadmap de melhorias](./roadmap.md) para ver o que está planejado para as próximas versões.
+
 ## Começar agora
 
 | Guia | Descrição |
@@ -29,6 +33,7 @@ O **@jcsolutions/sender** é uma biblioteca simples, extensível e type-safe par
 | [API Reference](./api.md) | Todas as funções, tipos e interfaces |
 | [Exemplos práticos](./examples.md) | Códigos completos prontos para usar |
 | [Provider customizado](./custom-provider.md) | Como criar seu próprio provider |
+| [Roadmap](./roadmap.md) | Funcionalidades planejadas |
 
 ## Providers suportados
 
