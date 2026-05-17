@@ -12,6 +12,11 @@
 
 SDK para envio de SMS com suporte a gateways angolanos.
 
+## Segurança
+
+O SDK faz requisições HTTP para as APIs dos provedores de SMS.
+Todas as requisições são feitas via `fetch` nativo do Node.js.
+
 ---
 
 ## 📦 Instalação
