@@ -48,13 +48,14 @@ console.log(result.success ? "✅ Enviado" : "❌ Falha");
 
 ## 🔧 Providers
 
-| Provider | Status |
-|----------|--------|
-| Ombala | ✅ Estável |
-| TelcoSMS | ✅ Estável |
-| KambaSMS | 🚧 Em desenvolvimento |
-| Sms.to, MIMO, WeSender | 📋 Planeados |
-
+| Provider | Status | Adicionado em | Estável desde |
+|----------|--------|---------------|---------------|
+| **Ombala** | ✅ Estável | `v0.1.0-alpha.1` | `v0.1.0-alpha.4` |
+| **KambaSMS** | 🚧 Em desenvolvimento | `v0.1.0-alpha.1` | - |
+| **TelcoSMS** | ✅ Estável | N/A | N/A |
+| Sms.to | 📋 Planeado | - | - |
+| MIMO | 📋 Planeado | - | - |
+| WeSender | 📋 Planeado | - | - |
 ## 📄 Licença
 
 MIT © [Justino Contingo](https://github.com/Justino-code)
