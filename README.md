@@ -50,9 +50,10 @@ console.log(result.success ? "✅ Enviado" : "❌ Falha");
 
 | Provider | Status |
 |----------|--------|
-| Ombala | ✅ |
+| Ombala | ✅ Estável |
+| TelcoSMS | ✅ Estável |
 | KambaSMS | 🚧 Em desenvolvimento |
-| Sms.to, TelcoSMS, MIMO, WeSender | 🚧 Planeados |
+| Sms.to, MIMO, WeSender | 📋 Planeados |
 
 ## 📄 Licença
 
