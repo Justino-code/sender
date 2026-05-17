@@ -51,10 +51,10 @@ console.log(result.success ? "✅ Enviado" : "❌ Falha");
 | Provider | Status | Adicionado em | Estável desde |
 |----------|--------|---------------|---------------|
 | **Ombala** | ✅ Estável | `v0.1.0-alpha.1` | `v0.1.0-alpha.4` |
-| **KambaSMS** | 🚧 Em desenvolvimento | `v0.1.0-alpha.1` | - |
 | **TelcoSMS** | ✅ Estável | - | - |
-| Sms.to | 📋 Planeado | - | - |
+| **KambaSMS** | 🚧 Em desenvolvimento | `v0.1.0-alpha.1` | - |
 | MIMO | 📋 Planeado | - | - |
+| Sms.to | 📋 Planeado | - | - |
 | WeSender | 📋 Planeado | - | - |
 ## 📄 Licença
 
