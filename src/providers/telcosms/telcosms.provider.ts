@@ -1,14 +1,11 @@
 // src/providers/telcosms/telcosms.provider.ts
 import { Provider } from "../../core/provider.js";
 import {
-  // Types
   SendMessageDto,
   SendMessageResponse,
   SendBatchMessageDto,
   SendBatchMessageResponse,
   ProviderConfig,
-
-  // Errors
   TimeoutError,
 } from "../../shared/index.js";
 
@@ -17,7 +14,6 @@ export class TelcoSmsProvider extends Provider {
 
   constructor(config: ProviderConfig) {
     super(config);
-    // Sem configurações extras - tudo abstraído internamente
   }
 
   protected buildHeaders(): HeadersInit {
@@ -31,7 +27,6 @@ export class TelcoSmsProvider extends Provider {
       this.validatePhoneOrThrow(data.to);
       this.validateMessageLength(data.message);
 
-      // Tenta os métodos em ordem: v2 POST → v1 POST → v2 GET
       const methods = [
         () => this.sendV2Post(data),
         () => this.sendV1Post(data),
@@ -50,7 +45,7 @@ export class TelcoSmsProvider extends Provider {
       }
 
       throw lastError || new Error("Todos os métodos de envio falharam");
-    })
+    });
   }
 
   /**
@@ -67,6 +62,11 @@ export class TelcoSmsProvider extends Provider {
 
     const response = await this.request("/api/v2/send_message", body);
     const result = await response.json();
+
+    // ✅ API retorna status 200 mesmo em erro, com campo 'status' no body
+    if (result.status && result.status !== 200 && result.status !== 201) {
+      this.handleErrorResponse(result.status, result);
+    }
 
     if (!response.ok) {
       this.handleErrorResponse(response.status, result);
@@ -94,6 +94,11 @@ export class TelcoSmsProvider extends Provider {
 
     const response = await this.request("/send_message", body);
     const result = await response.json();
+
+    // ✅ API retorna status 200 mesmo em erro, com campo 'status' no body
+    if (result.status && result.status !== 200 && result.status !== 201) {
+      this.handleErrorResponse(result.status, result);
+    }
 
     if (!response.ok) {
       this.handleErrorResponse(response.status, result);
@@ -128,15 +133,27 @@ export class TelcoSmsProvider extends Provider {
 
       clearTimeout(timeoutId);
 
+      let result;
+      try {
+        result = await response.json();
+      } catch {
+        result = { status: response.status };
+      }
+
+      // ✅ Verificar erro no corpo da resposta
+      if (result.status && result.status !== 200 && result.status !== 201) {
+        this.handleErrorResponse(result.status, result);
+      }
+
       if (!response.ok) {
-        this.handleErrorResponse(response.status, {});
+        this.handleErrorResponse(response.status, result);
       }
 
       return {
         success: true,
         provider: this.providerName,
         messageId: undefined,
-        raw: { status: response.status },
+        raw: result,
       };
     } catch (error) {
       clearTimeout(timeoutId);
@@ -147,9 +164,6 @@ export class TelcoSmsProvider extends Provider {
     }
   }
 
-  /**
-   * TelcoSMS não suporta batch nativo (usa implementação base)
-   */
   async sendBatch(data: SendBatchMessageDto): Promise<SendBatchMessageResponse> {
     return super.sendBatch(data);
   }

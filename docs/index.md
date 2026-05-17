@@ -10,16 +10,17 @@ SDK para envio de SMS com suporte a gateways angolanos.
 
 ## Introdução
 
-O **@jcsolutions/sender** é uma biblioteca simples, extensível e type-safe para envio de SMS em aplicações Node.js. Foi construída com foco em **developers angolanos** que precisam integrar diferentes gateways de SMS (Ombala, KambaSMS, etc) sem reescrever lógica de integração.
+O **@jcsolutions/sender** é uma biblioteca simples, extensível e type-safe para envio de SMS em aplicações Node.js. Foi construída com foco em **developers angolanos** que precisam integrar diferentes gateways de SMS (Ombala, KambaSMS, TelcoSMS, etc) sem reescrever lógica de integração.
 
 ## Características principais
 
 - **API simples** — Envie SMS com poucas linhas de código
 - **TypeScript first** — Tipos completos e autocomplete
-- **Múltiplos providers** — Ombala, KambaSMS e mais em breve
+- **Múltiplos providers** — Ombala, KambaSMS, TelcoSMS e mais em breve
 - **Envio em lote** — Suporte nativo para múltiplos destinatários
 - **Extensível** — Adicione qualquer gateway através do registry pattern
 - **Fallback automático** — Resiliência com múltiplos providers
+- **Retry automático** — Configurável para maior confiabilidade
 
 ## Recursos futuros
 
@@ -40,6 +41,7 @@ Consulte o [Roadmap de melhorias](./roadmap.md) para ver o que está planejado p
 | Provider | Status | Documentação |
 |----------|--------|--------------|
 | **Ombala** | ✅ Estável | [docs](./providers/ombala.md) |
+| **TelcoSMS** | ✅ Estável | [docs](./providers/telcosms.md) |
 | **KambaSMS** | 🚧 Em desenvolvimento | [docs](./providers/kambasms.md) |
 
 ## Instalação

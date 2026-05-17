@@ -38,7 +38,7 @@ describe('TelcoSmsProvider', () => {
 
       expect(result.success).toBe(true);
       expect(result.provider).toBe('telcosms');
-      
+
       const fetchCall = vi.mocked(global.fetch).mock.calls[0];
       const body = JSON.parse(fetchCall[1]?.body as string);
       expect(body.message.api_key_app).toBe('test-api-key-123');
@@ -66,7 +66,7 @@ describe('TelcoSmsProvider', () => {
 
       expect(result.success).toBe(true);
       expect(global.fetch).toHaveBeenCalledTimes(2);
-      
+
       const secondCall = vi.mocked(global.fetch).mock.calls[1];
       const body = JSON.parse(secondCall[1]?.body as string);
       expect(body.message.api_key_app).toBe('test-api-key-123');
@@ -97,7 +97,7 @@ describe('TelcoSmsProvider', () => {
 
       expect(result.success).toBe(true);
       expect(global.fetch).toHaveBeenCalledTimes(3);
-      
+
       const thirdCall = vi.mocked(global.fetch).mock.calls[2];
       expect(thirdCall[0]).toContain('/api/v2/send_message?');
       expect(thirdCall[0]).toContain('api_key_app=test-api-key-123');
@@ -156,7 +156,7 @@ describe('TelcoSmsProvider', () => {
     it('deve lançar ValidationError para número inválido', async () => {
       const invalidData = { ...sendData, to: '813000000' };
       global.fetch = vi.fn();
-      
+
       await expect(provider.send(invalidData)).rejects.toThrow(ValidationError);
       expect(global.fetch).not.toHaveBeenCalled();
     });
@@ -179,6 +179,41 @@ describe('TelcoSmsProvider', () => {
 
       expect(result.success).toBe(true);
       expect(result.provider).toBe('telcosms');
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+    });
+
+    it('deve lançar ValidationError quando não há números válidos', async () => {
+      const invalidBatch = {
+        to: ['invalid1', 'invalid2'],
+        message: 'Test batch',
+      };
+
+      await expect(provider.sendBatch(invalidBatch)).rejects.toThrow(ValidationError);
+      await expect(provider.sendBatch(invalidBatch)).rejects.toThrow(
+        'Nenhum número válido para envio'
+      );
+    });
+  });
+
+  describe('sendBatch', () => {
+    const batchData: SendBatchMessageDto = {
+      to: ['923000001', '923000002', '813000000'],
+      message: 'Test batch',
+    };
+
+    it('deve enviar SMS em lote (usando implementação base)', async () => {
+      const mockResponse = {
+        ok: true,
+        json: async () => ({ success: true }),
+      };
+      global.fetch = vi.fn().mockResolvedValue(mockResponse);
+
+      const result = await provider.sendBatch(batchData);
+
+      expect(result.success).toBe(true);
+      expect(result.provider).toBe('telcosms');
+      expect(result.successful).toHaveLength(2);
+      expect(result.failed).toContain('813000000');
       expect(global.fetch).toHaveBeenCalledTimes(2);
     });
 
