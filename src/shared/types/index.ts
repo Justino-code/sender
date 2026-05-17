@@ -51,6 +51,8 @@ export type ProviderConfig = {
     maxBatchSize?: number;
     maxMessageLength?: number;
     rateLimitPerHour?: number;
+    maxRetries?: number;      // Número de tentativas (0 = sem retry)
+    retryDelay?: number;      // Delay inicial em ms
     [key: string]: unknown;
   };
 }
@@ -61,7 +63,7 @@ export type SenderConfigFile = {
   providers: Record<string, Partial<ProviderConfig>>;
 }
 
-export type ValidatedPhone = { 
-  valid: string[]; 
+export type ValidatedPhone = {
+  valid: string[];
   invalid: string[];
 }

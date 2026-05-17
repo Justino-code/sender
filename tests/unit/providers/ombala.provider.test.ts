@@ -28,7 +28,7 @@ describe('OmbalaProvider', () => {
       const invalidConfig = { ...mockConfig, from: undefined };
       expect(() => new OmbalaProvider(invalidConfig)).toThrow(ConfigurationError);
       expect(() => new OmbalaProvider(invalidConfig)).toThrow(
-        'OmbalaProvider: from é obrigatório'
+        `ombala: 'from' é obrigatório. Configure na criação do provider.`
       );
     });
   });

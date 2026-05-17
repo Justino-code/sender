@@ -32,6 +32,9 @@ export abstract class Provider implements IProvider {
     protected readonly from?: string;
     protected readonly customData?: Record<string, unknown>;
 
+    protected readonly maxRetries: number = 0;
+    protected readonly retryDelay: number = 1000;
+
     // Constantes de limite (podem ser sobrescritas por providers)
     protected readonly maxBatchSize: number = 1000;
     protected readonly maxMessageLength: number = 160;
@@ -51,6 +54,13 @@ export abstract class Provider implements IProvider {
         }
         if (config.data?.maxMessageLength) {
             this.maxMessageLength = config.data.maxMessageLength as number;
+        }
+
+        if (config.data?.maxRetries) {
+            this.maxRetries = config.data?.maxRetries;
+        }
+        if (config.data?.retryDelay) {
+            this.retryDelay = config.data?.retryDelay;
         }
 
         this.token = config.token;
@@ -86,10 +96,22 @@ export abstract class Provider implements IProvider {
     }
 
     /**
-     * Valida um número de telefone angolano
+     * Valida um número de telefone (retorna boolean)
      */
     protected validatePhone(phone: string): boolean {
         return validatePhoneNumber(phone);
+    }
+
+    /**
+     * Valida um número de telefone e lança exceção se inválido
+     * @throws ValidationError
+     */
+    protected validatePhoneOrThrow(phone: string): void {
+        if (!this.validatePhone(phone)) {
+            throw new ValidationError(
+                "Formato de número angolano inválido. Use 9 dígitos (ex: 923000000)"
+            );
+        }
     }
 
     /**
@@ -100,18 +122,32 @@ export abstract class Provider implements IProvider {
     }
 
     /**
-     * Valida o tamanho da mensagem
+     * Valida se from está configurado (para providers que exigem)
+     * @throws ConfigurationError
      */
-    protected validateMessageLength(message: string, maxLength: number = 160): void {
-        if (message.length > maxLength) {
+    protected validateFromRequired(): void {
+        if (!this.from) {
+            throw new ConfigurationError(
+                `${this.providerName}: 'from' é obrigatório. Configure na criação do provider.`
+            );
+        }
+    }
+
+    /**
+     * Valida o tamanho da mensagem
+     * @throws ValidationError
+     */
+    protected validateMessageLength(message: string): void {
+        if (message.length > this.maxMessageLength) {
             throw new ValidationError(
-                `Mensagem muito longa: ${message.length} caracteres. Máximo ${maxLength} caracteres.`
+                `Mensagem muito longa: ${message.length} caracteres. Máximo ${this.maxMessageLength} caracteres.`
             );
         }
     }
 
     /**
      * Valida se a mensagem contém URLs (não permitido)
+     * @throws ValidationError
      */
     protected validateNoUrls(message: string): void {
         const urlPattern = /https?:\/\/|www\.|\.(com|ao|net|org)\b/i;
@@ -122,6 +158,10 @@ export abstract class Provider implements IProvider {
         }
     }
 
+    /**
+     * Valida o tamanho do lote
+     * @throws ValidationError
+     */
     protected validateBatchSize(validCount: number): void {
         if (validCount > this.maxBatchSize) {
             throw new ValidationError(
@@ -130,6 +170,22 @@ export abstract class Provider implements IProvider {
         }
     }
 
+    /**
+     * Valida se campaignName foi fornecido (para providers que exigem)
+     * @throws ValidationError
+     */
+    protected validateCampaignName(campaignName?: string): void {
+        if (!campaignName) {
+            throw new ValidationError(
+                "campaignName é obrigatório para envio em lote neste provider."
+            );
+        }
+    }
+
+    /**
+     * Valida números de telefone em lote e retorna os válidos
+     * @throws ValidationError se não houver números válidos
+     */
     protected validatedBatchPhoneNumbers(phoneNumbers: string[]): ValidatedPhone {
         const numbers = this.validatePhones(phoneNumbers);
 
@@ -200,58 +256,96 @@ export abstract class Provider implements IProvider {
      * Envio em lote - implementação base
      */
     async sendBatch(data: SendBatchMessageDto): Promise<SendBatchMessageResponse> {
-        const { valid, invalid } = this.validatePhones(data.to);
+        return this.withRetry(async () => {
+            const { valid, invalid } = this.validatePhones(data.to);
 
-        if (valid.length === 0) {
-            throw new ValidationError("Nenhum número válido para envio");
+            if (valid.length === 0) {
+                throw new ValidationError("Nenhum número válido para envio");
+            }
+
+            const results = await Promise.allSettled(
+                valid.map(phone =>
+                    this.send({
+                        to: phone,
+                        message: data.message,
+                    })
+                )
+            );
+
+            const successful: string[] = [];
+            const failed: string[] = [];
+            const details: Array<{ to: string; messageId?: string; error?: string }> = [];
+
+            results.forEach((result, index) => {
+                const phone = valid[index];
+
+                if (result.status === "fulfilled") {
+                    successful.push(phone);
+                    details.push({
+                        to: phone,
+                        messageId: result.value.messageId,
+                    });
+                } else {
+                    failed.push(phone);
+                    details.push({
+                        to: phone,
+                        error: result.reason?.message || "Erro desconhecido",
+                    });
+                }
+            });
+
+            failed.push(...invalid);
+            invalid.forEach(phone => {
+                details.push({
+                    to: phone,
+                    error: "Número inválido",
+                });
+            });
+
+            return {
+                success: successful.length > 0,
+                provider: this.providerName,
+                successful,
+                failed,
+                details,
+            };
+        });
+    }
+
+    /**
+     * Executa uma função com retry automático
+     * @param fn - Função a ser executada
+     * @param retries - Número de tentativas (sobrescreve o padrão)
+     * @returns Resultado da função
+     */
+
+    protected async withRetry<T>(
+        fn: () => Promise<T>,
+        retries: number = this.maxRetries
+    ): Promise<T> {
+        let lastError: Error | null = null;
+
+        for (let attempt = 1; attempt <= retries + 1; attempt++) {
+            try {
+                return await fn();
+            } catch (error) {
+                lastError = error as Error;
+
+                // Não retentar para certos erros
+                if (error instanceof ValidationError ||
+                    error instanceof AuthenticationError ||
+                    error instanceof ConfigurationError) {
+                    throw error;
+                }
+
+                if (attempt <= retries) {
+                    const delay = this.retryDelay * Math.pow(2, attempt - 1);
+                    await new Promise(r => setTimeout(r, delay));
+                }
+            }
         }
 
-        const results = await Promise.allSettled(
-            valid.map(phone =>
-                this.send({
-                    to: phone,
-                    message: data.message,
-                })
-            )
-        );
-
-        const successful: string[] = [];
-        const failed: string[] = [];
-        const details: Array<{ to: string; messageId?: string; error?: string }> = [];
-
-        results.forEach((result, index) => {
-            const phone = valid[index];
-
-            if (result.status === "fulfilled") {
-                successful.push(phone);
-                details.push({
-                    to: phone,
-                    messageId: result.value.messageId,
-                });
-            } else {
-                failed.push(phone);
-                details.push({
-                    to: phone,
-                    error: result.reason?.message || "Erro desconhecido",
-                });
-            }
-        });
-
-        failed.push(...invalid);
-        invalid.forEach(phone => {
-            details.push({
-                to: phone,
-                error: "Número inválido",
-            });
-        });
-
-        return {
-            success: successful.length > 0,
-            provider: this.providerName,
-            successful,
-            failed,
-            details,
-        };
+        throw lastError;
     }
 
     abstract send(data: SendMessageDto): Promise<SendMessageResponse>;

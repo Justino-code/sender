@@ -133,7 +133,7 @@ describe('KambaSmsProvider', () => {
       };
       global.fetch = vi.fn().mockResolvedValue(mockResponse);
 
-      const result = await provider.sendBatch(batchData);
+      const result = await provider.sendBatch(batchData);      
 
       expect(result.success).toBe(true);
       expect(result.provider).toBe('kambasms');
@@ -155,7 +155,7 @@ describe('KambaSmsProvider', () => {
 
       await expect(provider.sendBatch(invalidBatch)).rejects.toThrow(ValidationError);
       await expect(provider.sendBatch(invalidBatch)).rejects.toThrow(
-        'campaignName é obrigatório para envio em lote'
+        'campaignName é obrigatório para envio em lote neste provider.'
       );
     });
 

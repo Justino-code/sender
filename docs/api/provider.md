@@ -17,23 +17,35 @@ export abstract class Provider implements IProvider {
   // Limites configuráveis
   protected readonly maxBatchSize: number;
   protected readonly maxMessageLength: number;
+  
+  // Retry
+  protected readonly maxRetries: number;
+  protected readonly retryDelay: number;
 
   // Construtor
   public constructor(config: ProviderConfig);
 
-  // Métodos protegidos
-  protected buildHeaders(): HeadersInit;
-  protected normalizePhone(phone: string, internacional?: boolean): string;
-  protected normalizePhones(phones: string[], internacional?: boolean): string[];
+  // Métodos protegidos (validação)
   protected validatePhone(phone: string): boolean;
+  protected validatePhoneOrThrow(phone: string): void;
   protected validatePhones(phones: string[]): ValidatedPhone;
+  protected validateFromRequired(): void;
   protected validateMessageLength(message: string): void;
   protected validateNoUrls(message: string): void;
   protected validateBatchSize(validCount: number): void;
+  protected validateCampaignName(campaignName?: string): void;
   protected validatedBatchPhoneNumbers(phoneNumbers: string[]): ValidatedPhone;
+
+  // Métodos protegidos (utilitários)
+  protected buildHeaders(): HeadersInit;
+  protected normalizePhone(phone: string, internacional?: boolean): string;
+  protected normalizePhones(phones: string[], internacional?: boolean): string[];
   protected async request(url: string, body: unknown): Promise<Response>;
   protected handleErrorResponse(status: number, response: any): never;
   protected extractMessageId(result: any): string | undefined;
+  
+  // Retry
+  protected async withRetry<T>(fn: () => Promise<T>, retries?: number): Promise<T>;
 
   // Métodos públicos
   async sendBatch(data: SendBatchMessageDto): Promise<SendBatchMessageResponse>;
@@ -53,6 +65,8 @@ export abstract class Provider implements IProvider {
 | `customData` | `object` | Dados customizados do provider |
 | `maxBatchSize` | `number` | Limite de destinatários por lote (padrão: 1000) |
 | `maxMessageLength` | `number` | Limite de caracteres por mensagem (padrão: 160) |
+| `maxRetries` | `number` | Número de tentativas (padrão: 0) |
+| `retryDelay` | `number` | Delay inicial em ms (padrão: 1000) |
 
 ## Construtor
 
@@ -65,7 +79,97 @@ O construtor valida:
 - `baseUrl` é obrigatória
 - Configura limites via `config.data` (opcional)
 
-## Métodos Protegidos
+## Métodos de Validação
+
+### validatePhone()
+
+Valida um número angolano (retorna boolean).
+
+```typescript
+protected validatePhone(phone: string): boolean
+```
+
+### validatePhoneOrThrow()
+
+Valida um número e lança exceção se inválido.
+
+```typescript
+protected validatePhoneOrThrow(phone: string): void
+```
+
+**Lança:** `ValidationError`
+
+### validatePhones()
+
+Valida múltiplos números.
+
+```typescript
+protected validatePhones(phones: string[]): ValidatedPhone
+```
+
+Retorna `{ valid: string[], invalid: string[] }`
+
+### validateFromRequired()
+
+Valida se `from` está configurado (para providers que exigem).
+
+```typescript
+protected validateFromRequired(): void
+```
+
+**Lança:** `ConfigurationError`
+
+### validateMessageLength()
+
+Valida o tamanho da mensagem.
+
+```typescript
+protected validateMessageLength(message: string): void
+```
+
+**Lança:** `ValidationError` se exceder `maxMessageLength`
+
+### validateNoUrls()
+
+Valida ausência de URLs na mensagem.
+
+```typescript
+protected validateNoUrls(message: string): void
+```
+
+**Lança:** `ValidationError` se encontrar URL
+
+### validateBatchSize()
+
+Valida o tamanho do lote.
+
+```typescript
+protected validateBatchSize(validCount: number): void
+```
+
+**Lança:** `ValidationError` se exceder `maxBatchSize`
+
+### validateCampaignName()
+
+Valida se `campaignName` foi fornecido.
+
+```typescript
+protected validateCampaignName(campaignName?: string): void
+```
+
+**Lança:** `ValidationError` se não fornecido
+
+### validatedBatchPhoneNumbers()
+
+Valida e retorna números válidos em uma única operação.
+
+```typescript
+protected validatedBatchPhoneNumbers(phoneNumbers: string[]): ValidatedPhone
+```
+
+**Lança:** `ValidationError` se não houver números válidos
+
+## Métodos Utilitários
 
 ### buildHeaders()
 
@@ -95,64 +199,6 @@ Normaliza múltiplos números.
 
 ```typescript
 protected normalizePhones(phones: string[], internacional?: boolean): string[]
-```
-
-### validatePhone()
-
-Valida um número angolano.
-
-```typescript
-protected validatePhone(phone: string): boolean
-```
-
-Aceita formatos: `923000000`, `0923000000`, `+244923000000`
-
-### validatePhones()
-
-Valida múltiplos números.
-
-```typescript
-protected validatePhones(phones: string[]): ValidatedPhone
-```
-
-Retorna `{ valid: string[], invalid: string[] }`
-
-### validateMessageLength()
-
-Valida o tamanho da mensagem.
-
-```typescript
-protected validateMessageLength(message: string): void
-```
-
-Lança `ValidationError` se exceder `maxMessageLength` (160 caracteres)
-
-### validateNoUrls()
-
-Valida ausência de URLs na mensagem.
-
-```typescript
-protected validateNoUrls(message: string): void
-```
-
-Bloqueia padrões como `https://`, `www.`, `.com`, `.ao`, etc.
-
-### validateBatchSize()
-
-Valida o tamanho do lote.
-
-```typescript
-protected validateBatchSize(validCount: number): void
-```
-
-Lança `ValidationError` se exceder `maxBatchSize` (1000)
-
-### validatedBatchPhoneNumbers()
-
-Valida e retorna números válidos em uma única operação.
-
-```typescript
-protected validatedBatchPhoneNumbers(phoneNumbers: string[]): ValidatedPhone
 ```
 
 ### request()
@@ -188,11 +234,40 @@ protected extractMessageId(result: any): string | undefined
 
 Busca por: `id`, `messageId`, `smsId`, `message_id`
 
+## Retry Automático
+
+### withRetry()
+
+Executa uma função com retry automático.
+
+```typescript
+protected async withRetry<T>(fn: () => Promise<T>, retries?: number): Promise<T>
+```
+
+**Comportamento:**
+- Se `maxRetries = 0` (padrão), executa apenas uma vez
+- Se `maxRetries > 0`, tenta novamente em caso de falha
+- Backoff exponencial: `retryDelay`, `retryDelay * 2`, `retryDelay * 4`...
+- Não retenta para `ValidationError`, `AuthenticationError`, `ConfigurationError`
+
+**Configuração:**
+```typescript
+const sms = await createSender("ombala", {
+  token: "...",
+  baseUrl: "...",
+  from: "...",
+  data: {
+    maxRetries: 3,      // 3 tentativas (total 4)
+    retryDelay: 1000,   // delay inicial: 1s, 2s, 4s
+  },
+});
+```
+
 ## Métodos Públicos
 
 ### sendBatch()
 
-Implementação base para envio em lote.
+Implementação base para envio em lote (com retry).
 
 ```typescript
 async sendBatch(data: SendBatchMessageDto): Promise<SendBatchMessageResponse>

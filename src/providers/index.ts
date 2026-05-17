@@ -11,5 +11,5 @@ import { TelcoSmsProvider } from "./telcosms/telcosms.provider.js";
 registerProviders({
   ombala: OmbalaProvider,
   kambasms: KambaSmsProvider,
-  TelcoSmsProvider,
+  telcosms: TelcoSmsProvider,
 });

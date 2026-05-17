@@ -47,6 +47,7 @@
     "test:e2e": "vitest run tests/e2e",
     "test:e2e:ombala": "vitest run tests/e2e/ombala.e2e.test.ts",
     "test:e2e:kambasms": "vitest run tests/e2e/kambasms.e2e.test.ts",
+    "test:e2e:telcosms": "vitest run tests/e2e/telcosms.e2e.test.ts",
     "test:e2e:batch": "vitest run tests/e2e/ombala.batch.e2e.test.ts",
     "test:performance": "vitest run tests/performance",
     "test:all": "yarn test:unit && yarn test:integration && yarn test:performance",
