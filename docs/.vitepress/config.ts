@@ -70,7 +70,8 @@ export default defineConfig({
           text: 'Informações',
           items: [
             { text: 'Versões', link: '/changelog' },
-            { text: 'Contribuição', link: '/contributing' }
+            { text: 'Contribuição', link: '/contributing' },
+            { text: 'Roadmap', link: '/roadmap' },
           ]
         }
       ]
