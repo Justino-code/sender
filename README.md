@@ -52,7 +52,7 @@ console.log(result.success ? "✅ Enviado" : "❌ Falha");
 |----------|--------|---------------|---------------|
 | **Ombala** | ✅ Estável | `v0.1.0-alpha.1` | `v0.1.0-alpha.4` |
 | **KambaSMS** | 🚧 Em desenvolvimento | `v0.1.0-alpha.1` | - |
-| **TelcoSMS** | ✅ Estável | N/A | N/A |
+| **TelcoSMS** | ✅ Estável | - | - |
 | Sms.to | 📋 Planeado | - | - |
 | MIMO | 📋 Planeado | - | - |
 | WeSender | 📋 Planeado | - | - |
