@@ -6,7 +6,7 @@ export default defineConfig({
   title: '@jcsolutions/sender',
   description: 'SDK para envio de SMS com suporte a gateways angolanos',
   base: '/sender/',
-  
+
   themeConfig: {
     nav: [
       { text: 'Guia', link: '/getting-started' },
@@ -14,7 +14,7 @@ export default defineConfig({
       { text: 'Exemplos', link: '/examples' },
       { text: 'Providers', link: '/providers' }
     ],
-    
+
     sidebar: {
       '/': [
         {
@@ -39,19 +39,6 @@ export default defineConfig({
           ]
         },
         {
-          text: 'Exemplos',
-          items: [
-            { text: 'Visão geral', link: '/examples' },
-            { text: 'Básico', link: '/examples/basic/simple' },
-            { text: 'Envio em lote', link: '/examples/basic/batch' },
-            { text: 'Tratamento de erros', link: '/examples/error-handling/full' },
-            { text: 'Fallback', link: '/examples/fallback/automatic' },
-            { text: 'Provider customizado', link: '/examples/advanced/custom-provider' },
-            { text: 'Serviço Express', link: '/examples/advanced/express-service' },
-            { text: 'Utilitário OTP', link: '/examples/utilities/otp' }
-          ]
-        },
-        {
           text: 'Providers',
           items: [
             { text: 'Visão geral', link: '/providers' },
@@ -67,6 +54,19 @@ export default defineConfig({
           ]
         },
         {
+          text: 'Exemplos',
+          items: [
+            { text: 'Visão geral', link: '/examples' },
+            { text: 'Básico', link: '/examples/basic/simple' },
+            { text: 'Envio em lote', link: '/examples/basic/batch' },
+            { text: 'Tratamento de erros', link: '/examples/error-handling/full' },
+            { text: 'Fallback', link: '/examples/fallback/automatic' },
+            { text: 'Provider customizado', link: '/examples/advanced/custom-provider' },
+            { text: 'Serviço Express', link: '/examples/advanced/express-service' },
+            { text: 'Utilitário OTP', link: '/examples/utilities/otp' }
+          ]
+        },
+        {
           text: 'Informações',
           items: [
             { text: 'Versões', link: '/changelog' },
@@ -76,16 +76,16 @@ export default defineConfig({
         }
       ]
     },
-    
+
     socialLinks: [
       { icon: 'github', link: 'https://github.com/Justino-code/sender' }
     ],
-    
+
     footer: {
       message: 'MIT License',
       copyright: `Copyright © ${currentYear} Justino Contingo`
     },
-    
+
     search: {
       provider: 'local'
     }

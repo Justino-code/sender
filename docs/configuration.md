@@ -162,7 +162,7 @@ Recomendado para produção (secrets não ficam no código):
 
 ### Arquivo `.env`
 
-```env
+```markdown
 # Ombala
 OMBALA_TOKEN=omb_abc123def456
 OMBALA_BASE_URL=https://api.useombala.ao/v1
