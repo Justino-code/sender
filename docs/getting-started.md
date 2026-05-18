@@ -19,7 +19,7 @@ import { defineConfig } from "@jcsolutions/sender";
 
 export default defineConfig({
   defaultProvider: "ombala",
-  fallbackProviders: ["kambasms"],  // opcional
+  fallbackProviders: ["telcosms"],  // opcional
   
   providers: {
     ombala: {
@@ -27,9 +27,9 @@ export default defineConfig({
       baseUrl: "https://api.useombala.ao/v1",
       from: "LEVAJA",
     },
-    kambasms: {
-      token: process.env.KAMBASMS_TOKEN,
-      baseUrl: "https://api.kambasms.ao/v1",
+    telcosms: {
+      token: process.env.TELCOSMS_API_KEY,
+      baseUrl: "https://www.telcosms.co.ao",
     },
   },
 });
@@ -55,12 +55,23 @@ Se preferir, pode passar a configuração diretamente:
 ```typescript
 import { createSender } from "@jcsolutions/sender";
 
-const sms = await createSender({
+// Exemplo com Ombala
+const smsOmbala = await createSender({
   providerName: "ombala",
   providerConfig: {
     token: process.env.OMBALA_TOKEN,
     baseUrl: "https://api.useombala.ao/v1",
     from: "LEVAJA",
+    timeout: 10000,
+  },
+});
+
+// Exemplo com TelcoSMS
+const smsTelco = await createSender({
+  providerName: "telcosms",
+  providerConfig: {
+    token: process.env.TELCOSMS_API_KEY,
+    baseUrl: "https://www.telcosms.co.ao",
     timeout: 10000,
   },
 });
@@ -71,27 +82,21 @@ const sms = await createSender({
 ```typescript
 import { createSender } from "@jcsolutions/sender";
 
-const sms = await createSender({
-  providerName: "ombala",
-  providerConfig: {
-    token: process.env.OMBALA_TOKEN,
-    baseUrl: "https://api.useombala.ao/v1",
-    from: "LEVAJA",
-  },
+const sms = await createSender("ombala", {
+  token: process.env.OMBALA_TOKEN,
+  baseUrl: "https://api.useombala.ao/v1",
+  from: "LEVAJA",
 });
 ```
 
-### Provider KambaSMS (configuração mínima)
+### Provider TelcoSMS (configuração mínima)
 
 ```typescript
 import { createSender } from "@jcsolutions/sender";
 
-const sms = await createSender({
-  providerName: "kambasms",
-  providerConfig: {
-    token: process.env.KAMBASMS_TOKEN,
-    baseUrl: "https://api.kambasms.ao/v1",
-  },
+const sms = await createSender("telcosms", {
+  token: process.env.TELCOSMS_API_KEY,
+  baseUrl: "https://www.telcosms.co.ao",
 });
 ```
 
@@ -107,16 +112,15 @@ const sms = await createSender({
 
 ## Primeiro envio
 
+### Com Ombala
+
 ```typescript
 import { createSender } from "@jcsolutions/sender";
 
-const sms = await createSender({
-  providerName: "ombala",
-  providerConfig: {
-    token: process.env.OMBALA_TOKEN,
-    baseUrl: "https://api.useombala.ao/v1",
-    from: "LEVAJA",
-  },
+const sms = await createSender("ombala", {
+  token: process.env.OMBALA_TOKEN,
+  baseUrl: "https://api.useombala.ao/v1",
+  from: "LEVAJA",
 });
 
 const result = await sms.send({
@@ -131,7 +135,27 @@ if (result.success) {
 }
 ```
 
+### Com TelcoSMS
+
+```typescript
+import { createSender } from "@jcsolutions/sender";
+
+const sms = await createSender("telcosms", {
+  token: process.env.TELCOSMS_API_KEY,
+  baseUrl: "https://www.telcosms.co.ao",
+});
+
+const result = await sms.send({
+  to: "923000000",
+  message: "Olá mundo!",
+});
+
+console.log(result.success ? "✅ Enviado" : "❌ Falha");
+```
+
 ## Envio em lote
+
+### Ombala (batch nativo)
 
 ```typescript
 const result = await sms.sendBatch({
@@ -142,7 +166,7 @@ const result = await sms.sendBatch({
 console.log(`✅ Sucessos: ${result.successful.length}`);
 console.log(`❌ Falhas: ${result.failed.length}`);
 
-// Resultado individual
+// Detalhes individuais
 result.details?.forEach((detail) => {
   if (detail.messageId) {
     console.log(`✓ ${detail.to}: ${detail.messageId}`);
@@ -150,6 +174,20 @@ result.details?.forEach((detail) => {
     console.log(`✗ ${detail.to}: ${detail.error}`);
   }
 });
+```
+
+### TelcoSMS (implementação base)
+
+Como a TelcoSMS não possui batch nativo, o envio em lote é feito através de múltiplas chamadas individuais:
+
+```typescript
+const result = await sms.sendBatch({
+  to: ["923000001", "923000002", "923000003"],
+  message: "Promoção especial!",
+});
+
+console.log(`✅ Sucessos: ${result.successful.length}`);
+console.log(`❌ Falhas: ${result.failed.length}`);
 ```
 
 ## Tratamento de erros
@@ -164,13 +202,10 @@ import {
   TimeoutError 
 } from "@jcsolutions/sender";
 
-const sms = await createSender({
-  providerName: "ombala",
-  providerConfig: {
-    token: process.env.OMBALA_TOKEN,
-    baseUrl: "https://api.useombala.ao/v1",
-    from: "LEVAJA",
-  },
+const sms = await createSender("ombala", {
+  token: process.env.OMBALA_TOKEN,
+  baseUrl: "https://api.useombala.ao/v1",
+  from: "LEVAJA",
 });
 
 try {
@@ -200,19 +235,22 @@ try {
 ```typescript
 import { validatePhoneNumber, normalizePhoneNumber, createSender } from "@jcsolutions/sender";
 
-const sms = await createSender({
-  providerName: "ombala",
-  providerConfig: {
-    token: process.env.OMBALA_TOKEN,
-    baseUrl: "https://api.useombala.ao/v1",
-    from: "LEVAJA",
-  },
+const sms = await createSender("ombala", {
+  token: process.env.OMBALA_TOKEN,
+  baseUrl: "https://api.useombala.ao/v1",
+  from: "LEVAJA",
 });
 
 const phone = "923000000";
 
+// Validar número
 if (validatePhoneNumber(phone)) {
-  const normalized = normalizePhoneNumber(phone); // +244923000000
+  // Normalizar para formato nacional (Ombala)
+  const national = normalizePhoneNumber(phone);  // "923000000"
+  
+  // Normalizar para formato internacional (TelcoSMS)
+  const international = normalizePhoneNumber(phone, true);  // "+244923000000"
+  
   await sms.send({
     to: phone,
     message: "Olá!",
@@ -222,16 +260,37 @@ if (validatePhoneNumber(phone)) {
 }
 ```
 
+### Funções de normalização
+
+| Função | Descrição | Exemplo |
+|--------|-----------|---------|
+| `normalizePhoneNumber(phone)` | Normaliza para nacional (Ombala) | `"923000000"` |
+| `normalizePhoneNumber(phone, true)` | Normaliza para internacional (TelcoSMS) | `"+244923000000"` |
+| `normalizePhoneNumbers(phones)` | Lote nacional | `["923000001", "923000002"]` |
+| `normalizePhoneNumbers(phones, true)` | Lote internacional | `["+244923000001", "+244923000002"]` |
+
 ## Fallback automático (com arquivo de configuração)
 
-Se tiver um `sender.config.ts` com fallback configurado:
+Configure fallback entre providers estáveis:
 
 ```typescript
 // sender.config.ts
+import { defineConfig } from "@jcsolutions/sender";
+
 export default defineConfig({
   defaultProvider: "ombala",
-  fallbackProviders: ["kambasms"],
-  providers: { ... }
+  fallbackProviders: ["telcosms"],
+  providers: {
+    ombala: {
+      token: process.env.OMBALA_TOKEN,
+      baseUrl: "https://api.useombala.ao/v1",
+      from: "LEVAJA",
+    },
+    telcosms: {
+      token: process.env.TELCOSMS_API_KEY,
+      baseUrl: "https://www.telcosms.co.ao",
+    },
+  },
 });
 ```
 
@@ -239,7 +298,7 @@ export default defineConfig({
 // app.ts
 const sms = await createSender();  // fallback automático!
 
-// Se Ombala falhar, tenta KambaSMS automaticamente
+// Se Ombala falhar, tenta TelcoSMS automaticamente
 await sms.send({
   to: "923000000",
   message: "Mensagem com fallback!",

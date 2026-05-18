@@ -1,18 +1,21 @@
-import { defineConfig } from '../../src/core/config.js';
+import { defineConfig } from '../../src/index.js';
 
 export default defineConfig({
   defaultProvider: 'ombala',
-  fallbackProviders: ['kambasms'],
+  fallbackProviders: ['telcosms'],
   providers: {
     ombala: {
-      token: 'ombala-token',
-      baseUrl: 'https://api.ombala.com/v1',
-      from: 'LEVAJA',
-      timeout: 10000,
+      token: 'ombala-token-real',
+      baseUrl: 'https://api.ombala.com',
+      from: 'TESTE',
+    },
+    telcosms: {
+      token: 'telcosms-token-real',
+      baseUrl: 'https://api.telcosms.com',
     },
     kambasms: {
-      token: 'kambasms-token',
-      baseUrl: 'https://api.kambasms.com/v1',
+      token: 'kambasms-token-real',
+      baseUrl: 'https://api.kambasms.com',
     },
   },
 });

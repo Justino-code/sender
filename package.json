@@ -43,7 +43,7 @@
     "test": "vitest",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
-    "test:coverage": "vitest --coverage",
+    "test:coverage": "vitest run --coverage tests/unit tests/integration tests/security",
     "test:e2e": "vitest run tests/e2e",
     "test:e2e:ombala": "vitest run tests/e2e/ombala.e2e.test.ts",
     "test:e2e:kambasms": "vitest run tests/e2e/kambasms.e2e.test.ts",
@@ -51,11 +51,14 @@
     "test:e2e:batch": "vitest run tests/e2e/ombala.batch.e2e.test.ts",
     "test:e2e:telcosms-batch": "vitest run tests/e2e/telcosms.batch.e2e.test.ts",
     "test:performance": "vitest run tests/performance",
+    "test:security": "vitest run tests/security",
     "test:all": "yarn test:unit && yarn test:integration && yarn test:performance",
     "prepublishOnly": "yarn build",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "audit": "yarn audit --groups dependencies",
+    "audit:dev": "yarn audit"
   },
   "devDependencies": {
     "@types/node": "^25.6.2",

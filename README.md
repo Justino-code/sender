@@ -9,6 +9,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/node/v/@jcsolutions/sender)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue)](https://www.typescriptlang.org/)
+[![Tests](https://github.com/Justino-code/sender/actions/workflows/test.yml/badge.svg)](https://github.com/Justino-code/sender/actions/workflows/test.yml)
+[![Security Audit](https://github.com/Justino-code/sender/actions/workflows/audit.yml/badge.svg)](https://github.com/Justino-code/sender/actions/workflows/audit.yml)
+![Coverage](https://img.shields.io/badge/coverage-84.86%25-brightgreen)
 
 SDK para envio de SMS com suporte a gateways angolanos.
 

@@ -1,6 +1,6 @@
 # Configuração do @jcsolutions/sender
 
-O @jcsolutions/sender SDK oferece um sistema de configuração flexível que permite centralizar as credenciais dos seus providers e configurar fallback automático.
+O SDK oferece um sistema de configuração flexível que permite centralizar as credenciais dos seus providers e configurar fallback automático.
 
 ## Índice
 
@@ -36,7 +36,7 @@ export default defineConfig({
   defaultProvider: "ombala",
   
   // Fallback providers (tentados em ordem)
-  fallbackProviders: ["kambasms", "ecsend"],
+  fallbackProviders: ["telcosms"],
   
   // Configuração de cada provider
   providers: {
@@ -47,20 +47,19 @@ export default defineConfig({
       timeout: 10000,
     },
     
+    telcosms: {
+      token: process.env.TELCOSMS_API_KEY,
+      baseUrl: "https://www.telcosms.co.ao",
+      timeout: 10000,
+    },
+    
     kambasms: {
       token: process.env.KAMBASMS_TOKEN,
-      baseUrl: "https://api.kambasms.ao/v1",
-      timeout: 15000,
+      baseUrl: "https://nexasms-api.onrender.com",
+      timeout: 10000,
       data: {
         senderId: "MEUAPP",
       },
-    },
-    
-    ecsend: {
-      token: process.env.ECSEND_TOKEN,
-      baseUrl: "https://api.ecsend.ao/v1",
-      from: "SISTEMA",
-      timeout: 10000,
     },
   },
 });
@@ -74,10 +73,20 @@ export default defineConfig({
 
 ```typescript
 ombala: {
-  token: "sua-api-key",           // Obrigatório
-  baseUrl: "https://api.useombala.ao/v1",  // Obrigatório
-  from: "LEVAJA",                 // Obrigatório para Ombala
-  timeout: 10000,                 // Opcional (padrão: 10000)
+  token: process.env.OMBALA_TOKEN,        // Obrigatório
+  baseUrl: "https://api.useombala.ao/v1", // Obrigatório
+  from: "LEVAJA",                         // Obrigatório para Ombala
+  timeout: 10000,                         // Opcional (padrão: 10000)
+}
+```
+
+### Provider TelcoSMS
+
+```typescript
+telcosms: {
+  token: process.env.TELCOSMS_API_KEY,    // Obrigatório
+  baseUrl: "https://www.telcosms.co.ao",  // Obrigatório
+  timeout: 10000,                         // Opcional (padrão: 10000)
 }
 ```
 
@@ -85,11 +94,11 @@ ombala: {
 
 ```typescript
 kambasms: {
-  token: "sua-api-key",           // Obrigatório
-  baseUrl: "https://api.kambasms.ao/v1",  // Obrigatório
-  timeout: 15000,                 // Opcional (padrão: 10000)
+  token: process.env.KAMBASMS_TOKEN,             // Obrigatório
+  baseUrl: "https://nexasms-api.onrender.com",   // Obrigatório
+  timeout: 10000,                                // Opcional
   data: {
-    senderId: "MEUAPP",           // Opcional (identificador do remetente)
+    senderId: "MEUAPP",                          // Opcional
   },
 }
 ```
@@ -103,12 +112,12 @@ Quando configurado, o SDK tenta automaticamente os providers em ordem:
 ```typescript
 export default defineConfig({
   defaultProvider: "ombala",
-  fallbackProviders: ["kambasms", "ecsend"],
+  fallbackProviders: ["telcosms", "kambasms"],
   
   providers: {
     ombala: { ... },
+    telcosms: { ... },
     kambasms: { ... },
-    ecsend: { ... },
   },
 });
 ```
@@ -118,8 +127,8 @@ export default defineConfig({
 | Tentativa | Provider | Ação |
 |-----------|----------|------|
 | 1º | Ombala | Tenta enviar |
-| 2º | KambaSMS | Se Ombala falhar |
-| 3º | Ecsend | Se KambaSMS falhar |
+| 2º | TelcoSMS | Se Ombala falhar |
+| 3º | KambaSMS | Se TelcoSMS falhar |
 
 ### Uso:
 
@@ -129,14 +138,14 @@ import { createSender } from "@jcsolutions/sender";
 // Já tem fallback automático!
 const sms = await createSender();
 
-// Se Ombala falhar, tenta KambaSMS, depois Ecsend
+// Se Ombala falhar, tenta TelcoSMS, depois KambaSMS
 await sms.send({
   to: "923000000",
   message: "Mensagem com fallback automático!",
 });
 ```
 
-### Fallback com provider específico?
+### Fallback com provider específico
 
 Quando você especifica um provider, o fallback **não** é aplicado:
 
@@ -153,20 +162,20 @@ Recomendado para produção (secrets não ficam no código):
 
 ### Arquivo `.env`
 
-```markdown
+```env
 # Ombala
 OMBALA_TOKEN=omb_abc123def456
 OMBALA_BASE_URL=https://api.useombala.ao/v1
 OMBALA_FROM=LEVAJA
 
-# KambaSMS
-KAMBASMS_TOKEN=kam_xyz789ghi012
-KAMBASMS_BASE_URL=https://api.kambasms.ao/v1
-KAMBASMS_SENDER_ID=MEUAPP
+# TelcoSMS
+TELCOSMS_API_KEY=tel_xyz789ghi012
+TELCOSMS_BASE_URL=https://www.telcosms.co.ao
 
-# Ecsend
-ECSEND_TOKEN=ecs_345jkl678mno
-ECSEND_BASE_URL=https://api.ecsend.ao/v1
+# KambaSMS
+KAMBASMS_TOKEN=kam_345jkl678mno
+KAMBASMS_BASE_URL=https://nexasms-api.onrender.com
+KAMBASMS_SENDER_ID=MEUAPP
 ```
 
 ### Arquivo `sender.config.ts`
@@ -176,7 +185,7 @@ import { defineConfig } from "@jcsolutions/sender";
 
 export default defineConfig({
   defaultProvider: "ombala",
-  fallbackProviders: ["kambasms", "ecsend"],
+  fallbackProviders: ["telcosms", "kambasms"],
   
   providers: {
     ombala: {
@@ -184,18 +193,16 @@ export default defineConfig({
       baseUrl: process.env.OMBALA_BASE_URL,
       from: process.env.OMBALA_FROM,
     },
-    
+    telcosms: {
+      token: process.env.TELCOSMS_API_KEY,
+      baseUrl: process.env.TELCOSMS_BASE_URL,
+    },
     kambasms: {
       token: process.env.KAMBASMS_TOKEN,
       baseUrl: process.env.KAMBASMS_BASE_URL,
       data: {
         senderId: process.env.KAMBASMS_SENDER_ID,
       },
-    },
-    
-    ecsend: {
-      token: process.env.ECSEND_TOKEN,
-      baseUrl: process.env.ECSEND_BASE_URL,
     },
   },
 });
@@ -215,7 +222,7 @@ const isProduction = process.env.NODE_ENV === "production";
 
 export default defineConfig({
   defaultProvider: "ombala",
-  fallbackProviders: isProduction ? ["kambasms", "ecsend"] : ["kambasms"],
+  fallbackProviders: isProduction ? ["telcosms", "kambasms"] : ["telcosms"],
   
   providers: {
     ombala: {
@@ -227,10 +234,9 @@ export default defineConfig({
         : "https://sandbox.useombala.ao/v1",
       from: "LEVAJA",
     },
-    
-    kambasms: {
-      token: process.env.KAMBASMS_TOKEN,
-      baseUrl: "https://api.kambasms.ao/v1",
+    telcosms: {
+      token: process.env.TELCOSMS_API_KEY,
+      baseUrl: "https://www.telcosms.co.ao",
     },
   },
 });
@@ -331,7 +337,7 @@ console.log(`Fallback: ${fallbacks.join(" → ")}`);
 
 ## Exemplos completos
 
-### Exemplo 1: Configuração mínima
+### Exemplo 1: Configuração mínima (apenas Ombala)
 
 ```typescript
 // sender.config.ts
@@ -355,7 +361,7 @@ import { createSender } from "@jcsolutions/sender";
 const sms = await createSender("ombala");
 ```
 
-### Exemplo 2: Configuração com fallback
+### Exemplo 2: Configuração com fallback (Ombala → TelcoSMS)
 
 ```typescript
 // sender.config.ts
@@ -363,7 +369,7 @@ import { defineConfig } from "@jcsolutions/sender";
 
 export default defineConfig({
   defaultProvider: "ombala",
-  fallbackProviders: ["kambasms"],
+  fallbackProviders: ["telcosms"],
   
   providers: {
     ombala: {
@@ -371,9 +377,9 @@ export default defineConfig({
       baseUrl: "https://api.useombala.ao/v1",
       from: "LEVAJA",
     },
-    kambasms: {
-      token: process.env.KAMBASMS_TOKEN,
-      baseUrl: "https://api.kambasms.ao/v1",
+    telcosms: {
+      token: process.env.TELCOSMS_API_KEY,
+      baseUrl: "https://www.telcosms.co.ao",
     },
   },
 });
@@ -384,7 +390,7 @@ export default defineConfig({
 const sms = await createSender(); // fallback automático!
 ```
 
-### Exemplo 3: Configuração avançada
+### Exemplo 3: Configuração avançada com múltiplos providers
 
 ```typescript
 // sender.config.ts
@@ -392,7 +398,7 @@ import { defineConfig } from "@jcsolutions/sender";
 
 export default defineConfig({
   defaultProvider: process.env.NODE_ENV === "production" ? "ombala" : "ombala_sandbox",
-  fallbackProviders: process.env.NODE_ENV === "production" ? ["kambasms"] : [],
+  fallbackProviders: process.env.NODE_ENV === "production" ? ["telcosms", "kambasms"] : [],
   
   providers: {
     ombala: {
@@ -409,9 +415,15 @@ export default defineConfig({
       timeout: 5000,
     },
     
+    telcosms: {
+      token: process.env.TELCOSMS_API_KEY,
+      baseUrl: "https://www.telcosms.co.ao",
+      timeout: 10000,
+    },
+    
     kambasms: {
       token: process.env.KAMBASMS_TOKEN,
-      baseUrl: "https://api.kambasms.ao/v1",
+      baseUrl: "https://nexasms-api.onrender.com",
       timeout: 15000,
       data: {
         senderId: "PROD_APP",
@@ -455,9 +467,9 @@ Error: Configuração incompleta para provider "ombala". Verifique suas credenci
 ```typescript
 providers: {
   ombala: {
-    token: process.env.OMBALA_TOKEN,  // ← obrigatório
-    baseUrl: process.env.OMBALA_BASE_URL,  // ← obrigatório
-    from: "LEVAJA",
+    token: process.env.OMBALA_TOKEN,     // ← obrigatório
+    baseUrl: process.env.OMBALA_BASE_URL, // ← obrigatório
+    from: "LEVAJA", // ← obrigatório para ombala
   },
 }
 ```
@@ -481,4 +493,3 @@ providers: {
 - [Primeiros passos](./getting-started.md)
 - [API Reference](./api.md)
 - [Exemplos práticos](./examples.md)
-```

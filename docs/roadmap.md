@@ -24,8 +24,8 @@ Este documento descreve as funcionalidades planejadas para versões futuras do `
 
 **Providers incluídos:**
 - ✅ Ombala
-- ✅ KambaSMS
-- ✅ TelcoSMS (pendente validação)
+- ✅ KambaSMS (pendente validação)
+- ✅ TelcoSMS 
 
 ---
 
@@ -52,7 +52,6 @@ Este documento descreve as funcionalidades planejadas para versões futuras do `
 ## v1.2.0
 
 ### Geral
-- [ ] Retry automático configurável
 - [ ] Webhook para status de entrega
 - [ ] Logging integrado (winston/pino)
 - [ ] Métricas de uso (contador de SMS)
@@ -83,7 +82,6 @@ Este documento descreve as funcionalidades planejadas para versões futuras do `
 
 ## v2.0.0 (futuro)
 
-- [ ] API completamente assíncrona (já é)
 - [ ] Remoção de funcionalidades depreciadas
 - [ ] Mudanças que quebram compatibilidade
 

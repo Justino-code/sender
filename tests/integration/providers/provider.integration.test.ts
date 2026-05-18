@@ -15,8 +15,6 @@ describe('Integração - Providers', () => {
     expect(providers).toContain('kambasms');
     expect(providers).toContain('telcosms');
     expect(providers.length).toBe(3);
-
-    console.log(providers);
     
   });
 
