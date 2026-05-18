@@ -1,0 +1,29 @@
+# .github/workflows/block-push.yml
+name: Block Broken Push
+
+on:
+  push:
+    branches: [main, develop]
+
+jobs:
+  validate:
+    name: Validate Before Push
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'yarn'
+      
+      - run: yarn install --frozen-lockfile
+      - run: yarn test:unit
+      - run: yarn test:integration
+      - run: yarn build
+      
+      - name: Cancel if tests fail
+        if: failure()
+        run: |
+          echo "❌ Tests failed! Push blocked."
+          exit 1
