@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.0.0] - 2026-05-20
+
+### Adicionado
+- **Provider Ombala** (estável) - Envio simples, lote nativo, agendamento
+- **Provider TelcoSMS** (estável) - Envio simples e em lote
+- Configuração centralizada (`sender.config.ts`)
+- Fallback automático entre providers
+- Retry automático configurável
+- Validação e normalização de números angolanos
+- Registry pattern para providers customizados
+- TypeScript completo
+
+### Modificado
+- API estabilizada (sem mudanças previstas)
+- Documentação reorganizada
+
+### Provider KambaSMS
+- 🚧 Em desenvolvimento (aguardando credenciais para testes)
+
+---
+
 ## [0.1.0-alpha.4] - 2026-05-11
 
 ### Corrigido
@@ -9,6 +30,8 @@
 
 ### Adicionado
 - Batch nativo para Ombala (números separados por vírgula)
+
+---
 
 ## [0.1.0-alpha.3] - 2026-05-10
 
