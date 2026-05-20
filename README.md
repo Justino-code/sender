@@ -10,7 +10,6 @@
 [![Tests](https://github.com/Justino-code/sender/actions/workflows/test.yml/badge.svg)](https://github.com/Justino-code/sender/actions/workflows/test.yml)
 [![Security Audit](https://github.com/Justino-code/sender/actions/workflows/audit.yml/badge.svg)](https://github.com/Justino-code/sender/actions/workflows/audit.yml)
 ![Coverage](https://img.shields.io/badge/coverage-84.86%25-brightgreen)
-[![PR Checks](https://github.com/Justino-code/sender/actions/workflows/pr.yml/badge.svg)](https://github.com/Justino-code/sender/actions/workflows/pr.yml)
 
 SDK para envio de SMS com suporte a gateways angolanos.
 
