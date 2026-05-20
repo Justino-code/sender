@@ -1,95 +1,174 @@
 # Roadmap de melhorias
 
-Este documento descreve as funcionalidades planejadas para versões futuras do `@jcsolutions/sender`.
+## Visão geral
 
-## Versionamento
-
-- `v1.0.0` - Primeira versão estável (apenas envio de SMS)
-- `v1.x.x` - Adições graduais (não quebram a API)
-- `v2.0.0` - Mudanças significativas (se necessário)
-
----
-
-## v1.0.0 (estável)
-
-**Core implementado:**
-- ✅ Envio simples (`send`)
-- ✅ Envio em lote (`sendBatch`)
-- ✅ Configuração centralizada (`sender.config.ts`)
-- ✅ Fallback automático entre providers
-- ✅ Validação de números angolanos
-- ✅ Normalização de números
-- ✅ Tratamento de erros completo
-- ✅ Registry pattern para providers
-
-**Providers incluídos:**
-- ✅ Ombala
-- ✅ KambaSMS (pendente validação)
-- ✅ TelcoSMS 
-
----
-
-## v1.1.0 (primeiras melhorias)
-
-### Ombala
-- [ ] `getBalance()` - Consultar saldo de créditos
-- [ ] `getSenders()` - Listar remetentes cadastrados
-- [ ] `createSender(name)` - Criar novo remetente
-- [ ] `getHistory(page?)` - Listar histórico de mensagens
-- [ ] `getMessageById(id)` - Buscar mensagem específica
-
-### KambaSMS
-- [ ] `getBalance()` - Consultar saldo de créditos
-- [ ] `getHistory()` - Listar histórico de mensagens
-- [ ] `getScheduled()` - Listar agendamentos pendentes
-- [ ] `cancelScheduled(id)` - Cancelar agendamento
-
-### TelcoSMS
-- [ ] `checkBalance()` - Verificar saldo disponível
-
----
-
-## v1.2.0
-
-### Geral
-- [ ] Webhook para status de entrega
-- [ ] Logging integrado (winston/pino)
-- [ ] Métricas de uso (contador de SMS)
-
-### Ombala
-- [ ] Suporte a template de mensagens
-- [ ] Relatórios de entrega
-
-### KambaSMS
-- [ ] Suporte a opt-out para campanhas
-- [ ] Estatísticas de campanhas
+```
+                    ┌─────────────────────────────────────────────────────────────────┐
+                    │                         v1.0.0 (ATUAL)                          │
+                    │  ✅ Envio simples  ✅ Envio em lote  ✅ Fallback  ✅ Retry       │
+                    │  ✅ Ombala (estável)  ✅ TelcoSMS (estável)                      │
+                    └─────────────────────────────────────────────────────────────────┘
+                                                          │
+                                                          ▼
+                    ┌─────────────────────────────────────────────────────────────────┐
+                    │                     PRÓXIMAS MELHORIAS                           │
+                    │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐          │
+                    │  │  Ombala     │    │  TelcoSMS   │    │  KambaSMS   │          │
+                    │  │  getBalance │    │checkBalance │    │  API real   │          │
+                    │  │  getSenders │    └──────┬──────┘    │  getBalance │          │
+                    │  │  getHistory │           │           │  getHistory │          │
+                    │  └──────┬──────┘           │           └──────┬──────┘          │
+                    │         │                  │                  │                 │
+                    │         └──────────────────┼──────────────────┘                 │
+                    │                            ▼                                    │
+                    │         ┌─────────────────────────────────────┐                 │
+                    │         │          Refatoração (SRP)          │                 │
+                    │         │  ValidationService  │  HttpClient   │                 │
+                    │         │  RetryHandler       │  ProviderCore │                 │
+                    │         └─────────────────────────────────────┘                 │
+                    └─────────────────────────────────────────────────────────────────┘
+                                                          │
+                                                          ▼
+                    ┌─────────────────────────────────────────────────────────────────┐
+                    │                      RECURSOS GLOBAIS                           │
+                    │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐          │
+                    │  │  Webhook    │    │   Logging   │    │  Métricas   │          │
+                    │  │  entrega    │    │  (winston)  │    │  (contador) │          │
+                    │  └─────────────┘    └─────────────┘    └─────────────┘          │
+                    │                                                                 │
+                    │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐          │
+                    │  │  WhatsApp   │    │    RCS      │    │   Redis     │          │
+                    │  │  suporte    │    │  suporte    │    │   cache     │          │
+                    │  └─────────────┘    └─────────────┘    └─────────────┘          │
+                    └─────────────────────────────────────────────────────────────────┘
+                                                          │
+                                                          ▼
+                    ┌─────────────────────────────────────────────────────────────────┐
+                    │                       NOVOS PROVIDERS                           │
+                    │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐          │
+                    │  │   Sms.to    │    │    MIMO     │    │  WeSender   │          │
+                    │  │  (planeado) │    │  (planeado) │    │  (planeado) │          │
+                    │  └─────────────┘    └─────────────┘    └─────────────┘          │
+                    └─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## v1.3.0
+## Detalhamento por área
 
-### Geral
-- [ ] Suporte a WhatsApp (via providers compatíveis)
-- [ ] Suporte a RCS (Rich Communication Services)
-- [ ] Cache de configurações (Redis)
+### 🔧 Refatoração (SRP)
 
-### Novos providers
-- [ ] Sms.to
-- [ ] MIMO
-- [ ] WeSender
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        Provider (antes)                             │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  │
+│  │Validação │ │   HTTP   │ │  Retry   │ │   Core   │ │   Config │  │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘  │
+└─────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                        Provider (depois)                            │
+│                                                                     │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │                      ProviderCore                            │   │
+│  │              (send, sendBatch, providerName)                 │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│         │                    │                    │                │
+│         ▼                    ▼                    ▼                │
+│  ┌─────────────┐      ┌─────────────┐      ┌─────────────┐         │
+│  │ Validation  │      │ HttpClient  │      │ RetryHandler│         │
+│  │   Service   │      │             │      │             │         │
+│  └─────────────┘      └─────────────┘      └─────────────┘         │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### 📱 Funcionalidades por provider
+
+```
+Ombala (✅ estável)
+├── ✅ Envio simples
+├── ✅ Envio em lote nativo
+├── ✅ Agendamento
+├── 📋 getBalance()
+├── 📋 getSenders()
+├── 📋 getHistory()
+└── 📋 createSender()
+
+TelcoSMS (✅ estável)
+├── ✅ Envio simples
+├── ✅ Envio em lote (base)
+├── 📋 checkBalance()
+└── 📋 (aguardando documentação)
+
+KambaSMS (🚧 em desenvolvimento)
+├── 🚧 Envio simples (aguardando credenciais)
+├── 🚧 Envio em lote (aguardando credenciais)
+├── 🚧 Agendamento (aguardando credenciais)
+├── 📋 getBalance()
+├── 📋 getHistory()
+└── 📋 getScheduled()
+```
+
+### 🌐 Recursos globais
+
+```
+Recursos
+├── 📋 Webhook para status de entrega
+├── 📋 Logging integrado (winston/pino)
+├── 📋 Métricas de uso
+├── 📋 Suporte a WhatsApp
+├── 📋 Suporte a RCS
+└── 📋 Cache com Redis
+```
 
 ---
 
-## v2.0.0 (futuro)
+## ⏱️ Timeline indicativa
 
-- [ ] Remoção de funcionalidades depreciadas
-- [ ] Mudanças que quebram compatibilidade
+```
+Agora ★
+  │
+  ├── ● v1.0.0 (lançada) ──────────────────────────────────────────────►
+  │
+  ├── ○ Refatoração SRP
+  │
+  ├── ○ Funcionalidades específicas por provider
+  │
+  └── ○ Novos providers
+                                                              ▼
+                                                        Futuro ★
+```
 
 ---
 
-## Como contribuir
+## 📊 Prioridades
 
-Veja as issues marcadas com `good-first-issue` ou `help-wanted` no [GitHub](https://github.com/Justino-code/sender/issues).
+```
+Alta prioridade ●     Média prioridade ○     Baixa prioridade ◌
+
+● Refatoração SRP
+● getBalance() (Ombala)
+● Testes KambaSMS (quando credenciais disponíveis)
+
+○ getHistory() (Ombala)
+○ Webhook entrega
+○ Logging integrado
+
+◌ Novos providers (Sms.to, MIMO, WeSender)
+◌ Suporte WhatsApp/RCS
+```
+
+---
+
+## 🤝 Como contribuir
+
+1. Abra uma issue descrevendo a funcionalidade
+2. Faça um fork do projeto
+3. Implemente a funcionalidade
+4. Envie um Pull Request
+
+Consulte o [guia de contribuição](./contributing.md).
 
 ---
 
@@ -100,4 +179,6 @@ Veja as issues marcadas com `good-first-issue` ou `help-wanted` no [GitHub](http
 | ✅ | Implementado |
 | 🚧 | Em desenvolvimento |
 | 📋 | Planeado |
-| ❌ | Descartado |
+| ● | Alta prioridade |
+| ○ | Média prioridade |
+| ◌ | Baixa prioridade |
