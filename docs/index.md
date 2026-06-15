@@ -1,7 +1,5 @@
 # @jcsolutions/sender
 
-> ⚠️ **Aviso**: Em desenvolvimento (alpha). A API pode mudar até a versão 1.0.0.
-
 > 📌 **Aviso de independência**: Este projeto é de código aberto, **independente** e não é oficialmente afiliado, patrocinado ou endossado por nenhum dos provedores de SMS suportados. Os nomes dos provedores são marcas registradas de seus respectivos proprietários.
 
 SDK para envio de SMS com suporte a gateways angolanos.
