@@ -36,7 +36,7 @@ import { createSender } from "@jcsolutions/sender";
 const sms = await createSender("ombala", {
   token: process.env.OMBALA_TOKEN,
   baseUrl: "https://api.useombala.ao/v1",
-  from: "LEVAJA",
+  from: "923000000",  // Seu número cadastrado na plataforma
 });
 
 const result = await sms.send({
@@ -58,8 +58,9 @@ console.log(result.success ? "✅ Enviado" : "❌ Falha");
 | Provider | Status | Adicionado em | Estável desde |
 |----------|--------|---------------|---------------|
 | **Ombala** | ✅ Estável | `v0.1.0-alpha.1` | `v0.1.0-alpha.4` |
-| **TelcoSMS** | ✅ Estável | - | - |
-| **KambaSMS** | 🚧 Em desenvolvimento | `v0.1.0-alpha.1` | - |
+| **TelcoSMS** | ✅ Estável | - | `1.0.0` |
+| **WhatsApp (Meta)** | 🚧 Em desenvolvimento | - | - |
+| **KambaSMS** | 🚧 Em pausa | `v0.1.0-alpha.1` | - |
 | MIMO | 📋 Planeado | - | - |
 | Sms.to | 📋 Planeado | - | - |
 | WeSender | 📋 Planeado | - | - |
