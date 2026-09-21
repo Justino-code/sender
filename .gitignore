@@ -45,3 +45,6 @@ temp/
 # Documentação build
 docs/.vitepress/dist/
 docs/.vitepress/cache/
+
+# Docs de lembracas
+melhorias.md
