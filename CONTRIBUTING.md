@@ -10,7 +10,7 @@ Evite alterações que acoplem a aplicação diretamente a um provider específi
 
 ## Requisitos
 
-- Node.js 20 ou superior;
+- Node.js 22 ou superior;
 - Yarn 1.22.22, conforme definido no projeto;
 - Git;
 - credenciais de provider apenas quando forem necessários testes E2E.
