@@ -1,6 +1,6 @@
 # @jcsolutions/sender
 
-> 📌 **Aviso de independência**: Este projeto é de código aberto, **independente** e não é oficialmente afiliado, patrocinado ou endossado por nenhum dos provedores de SMS suportados. Os nomes dos provedores são marcas registradas de seus respectivos proprietários.
+> 📌 **Aviso de independência**: Este projeto é de código aberto, **independente** e não é oficialmente afiliado, patrocinado ou endossado por nenhum dos provedores de SMS suportados. Os nomes e marcas mencionados pertencem aos seus respectivos proprietários.
 
 [![npm version](https://img.shields.io/npm/v/@jcsolutions/sender.svg)](https://www.npmjs.com/package/@jcsolutions/sender)
 [![Socket Badge](https://badge.socket.dev/npm/package/@jcsolutions/sender)](https://socket.dev/npm/package/@jcsolutions/sender)
@@ -13,10 +13,36 @@
 
 SDK para envio de SMS com suporte a gateways angolanos.
 
+O `@jcsolutions/sender` funciona como uma camada de integração entre aplicações e providers de SMS. Ele fornece uma interface consistente para envio de mensagens, mantendo a lógica específica de cada provider isolada.
+
+## O que resolve
+
+Integrar diretamente vários gateways de SMS pode exigir lógica específica para cada API, incluindo autenticação, formatos de requisição, respostas, tratamento de erros e limites de utilização.
+
+O `sender` centraliza essas preocupações e permite que a aplicação utilize providers diferentes sem espalhar integrações específicas pelo código.
+
+O projeto não é um gateway de telecomunicações e não substitui os providers suportados. O envio depende das APIs, credenciais, disponibilidade, quotas e regras de cada provider.
+
+## Funcionalidades
+
+- Interface comum para diferentes providers de SMS;
+- suporte a envio individual e em lote;
+- validação e normalização de números angolanos;
+- tratamento padronizado de erros;
+- timeout de requisições;
+- retries configuráveis;
+- fallback entre providers configurados;
+- registro e criação de providers personalizados;
+- suporte a TypeScript;
+- utilização do `fetch` nativo do Node.js.
+
 ## Segurança
 
-O SDK faz requisições HTTP para as APIs dos provedores de SMS.
-Todas as requisições são feitas via `fetch` nativo do Node.js.
+O SDK faz requisições HTTP para as APIs dos provedores de SMS. Todas as requisições são feitas via `fetch` nativo do Node.js.
+
+Não coloque tokens diretamente no código ou no repositório. Utilize variáveis de ambiente e evite registrar credenciais, mensagens ou respostas completas dos providers em logs públicos.
+
+O `sender` não garante a entrega final do SMS. A entrega depende do provider, da rede móvel, das quotas, das credenciais e das condições externas do serviço utilizado.
 
 ---
 
@@ -47,6 +73,20 @@ const result = await sms.send({
 console.log(result.success ? "✅ Enviado" : "❌ Falha");
 ```
 
+## 🔁 Fallback e confiabilidade
+
+Quando configurado com um provider padrão e providers alternativos, o `sender` pode tentar outro provider caso o atual falhe.
+
+O comportamento de fallback depende da configuração e das características de cada provider. Providers diferentes podem possuir APIs, limites, custos e resultados distintos.
+
+Timeouts e retries também devem ser configurados de acordo com as regras do provider e com as necessidades da aplicação. Em operações de envio, retries devem ser usados com cuidado para evitar mensagens duplicadas quando o resultado de uma requisição for desconhecido.
+
+## 📦 Envio em lote
+
+O SDK permite enviar mensagens para vários números e retornar o resultado individual de cada destinatário, incluindo sucessos, falhas e números inválidos.
+
+Os limites de lote, formatos aceitos e requisitos adicionais podem variar de acordo com o provider utilizado.
+
 ## 📚 Documentação
 
 - [Documentação completa](https://justino-code.github.io/sender/)
@@ -64,6 +104,11 @@ console.log(result.success ? "✅ Enviado" : "❌ Falha");
 | MIMO | 📋 Planeado | - | - |
 | Sms.to | 📋 Planeado | - | - |
 | WeSender | 📋 Planeado | - | - |
+
+## 🤝 Contribuição
+
+As contribuições são bem-vindas. Consulte o [guia de contribuição](CONTRIBUTING.md) antes de abrir uma issue ou pull request.
+
 ## 📄 Licença
 
 MIT © [Justino Contingo](https://github.com/Justino-code)
