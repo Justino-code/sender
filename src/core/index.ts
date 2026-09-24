@@ -1,4 +1,4 @@
-export { Provider } from "./provider.js";
+export { Provider } from "./Provider.js";
 export {
   registry,
   registerProvider,
