@@ -37,8 +37,14 @@ export type SendBatchMessageResponse = BaseResponse & {
 
 // ============ Configurações ============
 export type CreateSenderConfig = {
-  providerName: string;
-  providerConfig: ProviderConfig;
+  providers: Record<string, ProviderConfig>;
+  retry: boolean;      // Activa ou desativa o retry automatico
+  defaultInitRetryDelay: number;     // Delay inicial em ms (default)
+  rateLimit: RateLimit;
+  strict: boolean;
+  logger: boolean;
+  defaultProvider?: string;
+  fallbackProviders?: string[];
 }
 
 export type ProviderConfig = {
@@ -46,13 +52,14 @@ export type ProviderConfig = {
   baseUrl: string;
   timeout?: number;
   from?: string;
+  maxRetries?: number;      // Número de tentativas (0 = sem retry)
+  initRetryDelay?: number;
+  maxBatchSize?: number;
+  maxMessageLength?: number;
+  rateLimit?: RateLimit;
+
   data?: {
     senderId?: string;
-    maxBatchSize?: number;
-    maxMessageLength?: number;
-    rateLimitPerHour?: number;
-    maxRetries?: number;      // Número de tentativas (0 = sem retry)
-    retryDelay?: number;      // Delay inicial em ms
     [key: string]: unknown;
   };
 }
@@ -60,10 +67,29 @@ export type ProviderConfig = {
 export type SenderConfigFile = {
   defaultProvider?: string;
   fallbackProviders?: string[];
-  providers: Record<string, Partial<ProviderConfig>>;
+  providers: Record<string, ProviderConfig>;
 }
 
 export type ValidatedPhone = {
   valid: string[];
   invalid: string[];
 }
+
+export type HttpMethod = 'GET' | 'POST';
+
+export type TimeUnit =
+  | 'milliseconds'
+  | 'seconds'
+  | 'minutes'
+  | 'hours'
+  | 'days';
+
+export type RateLimit = {
+  limit: number;
+  unit: TimeUnit;
+};
+
+export const MAX_RETRIES = 10;
+export const MAX_RETRY_DELAY_MS = 100000;
+export const MIN_RETRY_DELAY_MS = 1000;
+export const MAX_TIMEOUT_MS = 300000;
